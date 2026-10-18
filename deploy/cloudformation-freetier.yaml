@@ -1,0 +1,136 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'FSMS Freelancer Skill Management System - 100% AWS Free Tier Infrastructure Template'
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: 't2.micro'
+    AllowedValues:
+      - 't2.micro'
+      - 't3.micro'
+    Description: 'Free Tier compute instance type (750 hours/month Free Tier eligible).'
+
+  LatestAmiId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64'
+    Description: 'Latest Amazon Linux 2023 Free Tier AMI ID.'
+
+Resources:
+  # 1. AWS S3 Free Tier Bucket (5 GB Free Tier Allowance)
+  FsmsEvidenceBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Sub 'fsms-evidence-${AWS::AccountId}-${AWS::Region}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: false
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: false
+      LifecycleConfiguration:
+        Rules:
+          - Id: CleanUpOldDevUploads
+            Status: Enabled
+            ExpirationInDays: 90
+
+  # 2. IAM Role for EC2 with Least-Privilege S3 Access
+  FsmsInstanceRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [ec2.amazonaws.com]
+            Action: ['sts:AssumeRole']
+      Policies:
+        - PolicyName: FsmsS3EvidenceAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:PutObject'
+                  - 's3:GetObject'
+                  - 's3:DeleteObject'
+                  - 's3:ListBucket'
+                Resource:
+                  - !GetAtt FsmsEvidenceBucket.Arn
+                  - !Sub '${FsmsEvidenceBucket.Arn}/*'
+
+  FsmsInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Roles: [!Ref FsmsInstanceRole]
+
+  # 3. EC2 Security Group
+  FsmsSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Allow HTTP, HTTPS, and SSH traffic for FSMS Free Tier'
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 5000
+          ToPort: 5000
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+  # 4. EC2 Instance (t2.micro - Free Tier)
+  FsmsEc2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      InstanceType: !Ref InstanceType
+      ImageId: !Ref LatestAmiId
+      IamInstanceProfile: !Ref FsmsInstanceProfile
+      SecurityGroupIds:
+        - !GetAtt FsmsSecurityGroup.GroupId
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: 20
+            VolumeType: gp3
+            DeleteOnTermination: true
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          dnf update -y
+          dnf install -y docker git
+          systemctl start docker
+          systemctl enable docker
+          
+          # Install Docker Compose
+          mkdir -p /usr/local/lib/docker/cli-plugins
+          curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose
+          chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+          ln -s /usr/local/lib/docker/cli-plugins/docker-compose /usr/local/bin/docker-compose || true
+
+          # Clone and boot FSMS
+          cd /home/ec2-user
+          git clone https://github.com/your-username/freelancer-skill-management-system.git fsms
+          cd fsms
+          
+          # Inject S3 Bucket environment variable into container
+          echo "AWS_S3_BUCKET=${FsmsEvidenceBucket}" >> .env
+          echo "AWS_REGION=${AWS::Region}" >> .env
+          
+          docker-compose up -d --build
+
+Outputs:
+  WebsiteURL:
+    Description: 'Public URL of your deployed FSMS Application'
+    Value: !Sub 'http://${FsmsEc2Instance.PublicDnsName}'
+
+  PublicIP:
+    Description: 'Public IP of the EC2 Instance'
+    Value: !GetAtt FsmsEc2Instance.PublicIp
+
+  EvidenceS3Bucket:
+    Description: 'AWS S3 Free Tier Bucket for portfolio documents'
+    Value: !Ref FsmsEvidenceBucket
