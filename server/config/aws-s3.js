@@ -21,12 +21,12 @@ if (isAwsConfigured) {
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
       },
     });
-    console.log(`☁️  AWS S3 Client connected to bucket "${bucketName}" (Region: ${region})`);
+    console.log(`☁️  Cloud S3 Client connected to bucket "${bucketName}" (Region: ${region})`);
   } catch (err) {
-    console.warn('⚠️ Failed to initialize AWS S3 client, falling back to local storage:', err.message);
+    console.warn('⚠️ Cloud S3 initialization skipped, falling back to local storage:', err.message);
   }
 } else {
-  console.log('📦 AWS credentials not detected. Operating in Local Storage mode (Zero-cost/offline ready).');
+  console.log('📦 Evidence Storage ready: Local File Storage mode.');
 }
 
 /**

@@ -14,7 +14,9 @@ import {
   AlertTriangle,
   Check,
   X,
-  Plus
+  Plus,
+  Terminal,
+  Activity
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -35,7 +37,6 @@ export default function AdminDashboard() {
 
   // Moderation action form
   const [moderationNotes, setModerationNotes] = useState('');
-  const [selectedEvidenceForAction, setSelectedEvidenceForAction] = useState(null);
 
   const fetchAdminData = () => {
     setLoading(true);
@@ -83,7 +84,6 @@ export default function AdminDashboard() {
       if (!res.ok) throw new Error(data.error || 'Moderation failed');
 
       setMessage({ type: 'success', text: data.message });
-      setSelectedEvidenceForAction(null);
       setModerationNotes('');
       fetchAdminData();
     } catch (err) {
@@ -155,69 +155,69 @@ export default function AdminDashboard() {
       {/* Alert Banner */}
       {message && (
         <div
-          className={`mb-6 p-4 rounded-xl flex items-center justify-between text-xs ${
+          className={`mb-6 p-4 rounded-2xl flex items-center justify-between text-xs font-mono ${
             message.type === 'success'
-              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-              : 'bg-rose-50 text-rose-800 border border-rose-200'
+              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 glow-emerald'
+              : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
           }`}
         >
           <span>{message.text}</span>
-          <button onClick={() => setMessage(null)}>
-            <X className="w-3.5 h-3.5 text-slate-400" />
+          <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-white">
+            <X className="w-4 h-4" />
           </button>
         </div>
       )}
 
-      {/* Header */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+      {/* Header (Linear / Stripe Style) */}
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 mb-1">
-            SRS Requirement F9, F10 & S5
+          <span className="inline-flex items-center gap-1 text-[11px] font-mono uppercase font-bold px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/30 mb-2">
+            Linear / Stripe Style Moderation Desk (SRS F9, F10 & S5)
           </span>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <ShieldAlert className="w-6 h-6 text-purple-600" />
-            Platform Oversight & Administration Center
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-2">
+            <ShieldAlert className="w-6 h-6 text-purple-400" />
+            Platform Governance & Moderation Control
           </h1>
-          <p className="text-xs text-slate-600">
-            Content moderation, extensible skill taxonomy, tamper-evident audit logging, and platform analytics.
+          <p className="text-xs text-slate-400 mt-0.5">
+            Credential verification, taxonomy management, immutable audit logging, and platform-wide analytics.
           </p>
         </div>
 
         {/* Tab switchers */}
-        <div className="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200 text-xs">
+        <div className="inline-flex rounded-2xl bg-slate-900 p-1 border border-slate-800 text-xs font-mono">
           <button
             onClick={() => setActiveAdminTab('metrics')}
-            className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
-              activeAdminTab === 'metrics' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+            className={`px-3.5 py-2 rounded-xl font-bold transition-all ${
+              activeAdminTab === 'metrics' ? 'bg-slate-800 text-white shadow-xs glow-purple' : 'text-slate-400 hover:text-white'
             }`}
           >
             Analytics & KPIs (F10)
           </button>
           <button
             onClick={() => setActiveAdminTab('moderation')}
-            className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 ${
-              activeAdminTab === 'moderation' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+            className={`px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-1.5 ${
+              activeAdminTab === 'moderation' ? 'bg-slate-800 text-white shadow-xs glow-purple' : 'text-slate-400 hover:text-white'
             }`}
           >
-            Moderation Queue (F9)
+            Verification Queue (F9)
             {moderationQueue.filter(q => q.status === 'Uploaded').length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full bg-amber-500 text-white text-[10px]">
+              <span className="px-1.5 py-0.2 rounded-full bg-amber-500 text-slate-950 font-black text-[10px]">
                 {moderationQueue.filter(q => q.status === 'Uploaded').length}
               </span>
             )}
           </button>
           <button
             onClick={() => setActiveAdminTab('taxonomy')}
-            className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
-              activeAdminTab === 'taxonomy' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+            className={`px-3.5 py-2 rounded-xl font-bold transition-all ${
+              activeAdminTab === 'taxonomy' ? 'bg-slate-800 text-white shadow-xs glow-purple' : 'text-slate-400 hover:text-white'
             }`}
           >
-            Taxonomy Builder (4.3)
+            Taxonomy (4.3)
           </button>
           <button
             onClick={() => setActiveAdminTab('audit')}
-            className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
-              activeAdminTab === 'audit' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+            className={`px-3.5 py-2 rounded-xl font-bold transition-all ${
+              activeAdminTab === 'audit' ? 'bg-slate-800 text-white shadow-xs glow-purple' : 'text-slate-400 hover:text-white'
             }`}
           >
             Audit Log (S5)
@@ -228,30 +228,30 @@ export default function AdminDashboard() {
       {/* TAB 1: METRICS & ANALYTICS (SRS F10) */}
       {activeAdminTab === 'metrics' && metricsData && (
         <div className="space-y-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Freelancer Profiles</span>
-              <span className="text-2xl font-black text-slate-900 mt-1 block">{metricsData.metrics?.totalFreelancers}</span>
-              <span className="text-[10px] text-slate-500 mt-1 block">Active on platform</span>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 font-mono">
+            <div className="p-6 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-xl">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Freelancer Profiles</span>
+              <span className="text-3xl font-black text-white mt-1 block">{metricsData.metrics?.totalFreelancers}</span>
+              <span className="text-[10px] text-slate-500 mt-1 block">Active specialists</span>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Total Cataloged Skills</span>
-              <span className="text-2xl font-black text-indigo-600 mt-1 block">{metricsData.metrics?.totalSkills}</span>
-              <span className="text-[10px] text-emerald-600 font-bold mt-1 block">
+            <div className="p-6 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-xl">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Total Cataloged Skills</span>
+              <span className="text-3xl font-black text-cyan-400 mt-1 block">{metricsData.metrics?.totalSkills}</span>
+              <span className="text-[10px] text-emerald-400 font-bold mt-1 block">
                 {metricsData.metrics?.verificationRate}% Verified Rate
               </span>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Peer & Client Endorsements</span>
-              <span className="text-2xl font-black text-blue-600 mt-1 block">{metricsData.metrics?.totalEndorsements}</span>
+            <div className="p-6 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-xl">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Peer Endorsements</span>
+              <span className="text-3xl font-black text-violet-400 mt-1 block">{metricsData.metrics?.totalEndorsements}</span>
               <span className="text-[10px] text-slate-500 mt-1 block">Documented recommendations</span>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Assessments Pass Rate</span>
-              <span className="text-2xl font-black text-emerald-600 mt-1 block">{metricsData.metrics?.assessmentPassRate}%</span>
+            <div className="p-6 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-xl">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Assessment Pass Rate</span>
+              <span className="text-3xl font-black text-emerald-400 mt-1 block">{metricsData.metrics?.assessmentPassRate}%</span>
               <span className="text-[10px] text-slate-500 mt-1 block">
                 {metricsData.metrics?.passedAssessments} passed / {metricsData.metrics?.totalAssessmentsTaken} tests
               </span>
@@ -259,14 +259,14 @@ export default function AdminDashboard() {
           </div>
 
           {/* Category & Status Breakdown */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-              <h3 className="font-bold text-sm text-slate-900 mb-3">Skills by Category</h3>
-              <div className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 font-mono text-xs">
+            <div className="bg-slate-900/90 p-6 rounded-3xl border border-slate-800 shadow-xl">
+              <h3 className="font-bold text-sm text-white mb-4">Skills by Category</h3>
+              <div className="space-y-2.5">
                 {metricsData.categoryBreakdown?.map(cat => (
-                  <div key={cat.category_name} className="flex items-center justify-between text-xs py-1.5 border-b border-slate-100">
-                    <span className="font-semibold text-slate-700">{cat.category_name}</span>
-                    <span className="font-bold text-indigo-600 px-2 py-0.5 rounded-full bg-indigo-50">
+                  <div key={cat.category_name} className="flex items-center justify-between py-2 border-b border-slate-800/80">
+                    <span className="text-slate-300 font-sans">{cat.category_name}</span>
+                    <span className="font-bold text-cyan-400 px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20">
                       {cat.count} skills
                     </span>
                   </div>
@@ -274,13 +274,13 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-              <h3 className="font-bold text-sm text-slate-900 mb-3">Verification Status Distribution</h3>
-              <div className="space-y-2">
+            <div className="bg-slate-900/90 p-6 rounded-3xl border border-slate-800 shadow-xl">
+              <h3 className="font-bold text-sm text-white mb-4">Verification Status Distribution</h3>
+              <div className="space-y-2.5">
                 {metricsData.statusBreakdown?.map(st => (
-                  <div key={st.status} className="flex items-center justify-between text-xs py-1.5 border-b border-slate-100">
-                    <span className="font-semibold text-slate-700">{st.status}</span>
-                    <span className="font-bold text-slate-900 px-2 py-0.5 rounded-full bg-slate-100">
+                  <div key={st.status} className="flex items-center justify-between py-2 border-b border-slate-800/80">
+                    <span className="text-slate-300 font-sans">{st.status}</span>
+                    <span className="font-bold text-white px-2.5 py-0.5 rounded-full bg-slate-800 border border-slate-700">
                       {st.count} ({Math.round((st.count / (metricsData.metrics?.totalSkills || 1)) * 100)}%)
                     </span>
                   </div>
@@ -293,44 +293,44 @@ export default function AdminDashboard() {
 
       {/* TAB 2: MODERATION QUEUE (SRS F9) */}
       {activeAdminTab === 'moderation' && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div className="bg-slate-900/90 rounded-3xl border border-slate-800 p-6 shadow-xl space-y-5">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-800">
             <div>
-              <h2 className="text-base font-bold text-slate-900">Evidence Moderation Queue</h2>
-              <p className="text-xs text-slate-500">Review uploaded certificates and work samples before awarding verified status.</p>
+              <h2 className="text-base font-bold text-white">Evidence & Credential Moderation Queue</h2>
+              <p className="text-xs text-slate-400">Review uploaded certificates and work samples before awarding verified status.</p>
             </div>
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700">
-              {moderationQueue.length} Total Uploads
+            <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+              {moderationQueue.length} Uploaded Items
             </span>
           </div>
 
           {moderationQueue.length === 0 ? (
-            <p className="text-xs text-slate-400 py-8 text-center italic">No evidence in moderation queue.</p>
+            <p className="text-xs text-slate-500 py-12 text-center font-mono italic">No items pending in moderation queue.</p>
           ) : (
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-slate-800/80">
               {moderationQueue.map(item => (
-                <div key={item.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div key={item.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-mono text-xs">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-slate-900">{item.title}</span>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        item.status === 'Verified' ? 'bg-emerald-100 text-emerald-800' :
-                        item.status === 'Flagged' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-sm font-bold text-white">{item.title}</span>
+                      <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                        item.status === 'Verified' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
+                        item.status === 'Flagged' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
                       }`}>
                         {item.status}
                       </span>
                     </div>
 
-                    <div className="text-xs text-slate-500 flex flex-wrap items-center gap-3">
-                      <span>Freelancer: <strong className="text-slate-800">{item.freelancer_name}</strong></span>
+                    <div className="text-[11px] text-slate-400 flex flex-wrap items-center gap-3 mt-1">
+                      <span>Freelancer: <strong className="text-white">{item.freelancer_name}</strong></span>
                       <span>•</span>
-                      <span>Skill: <strong className="text-indigo-600">{item.skill_name}</strong></span>
+                      <span>Skill: <strong className="text-cyan-400">{item.skill_name}</strong></span>
                       <span>•</span>
-                      <span>Storage: <strong className="uppercase">{item.storage_type}</strong></span>
+                      <span>Storage: <strong className="text-violet-400 uppercase">{item.storage_type}</strong></span>
                     </div>
 
                     {item.notes && (
-                      <p className="text-[11px] text-slate-600 italic">Notes: {item.notes}</p>
+                      <p className="text-[11px] text-slate-500 italic mt-0.5 font-sans">Notes: {item.notes}</p>
                     )}
                   </div>
 
@@ -339,21 +339,21 @@ export default function AdminDashboard() {
                       href={item.file_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-3 py-1.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-semibold flex items-center gap-1"
+                      className="px-3.5 py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 font-bold flex items-center gap-1.5 transition-colors"
                     >
-                      View File <ExternalLink className="w-3 h-3" />
+                      View File <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
                     </a>
 
                     <button
                       onClick={() => handleModerate(item.id, 'Verified')}
-                      className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors flex items-center gap-1 shadow-xs"
+                      className="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black transition-colors flex items-center gap-1 shadow-xs"
                     >
                       <Check className="w-3.5 h-3.5" /> Approve
                     </button>
 
                     <button
                       onClick={() => handleModerate(item.id, 'Flagged')}
-                      className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-colors flex items-center gap-1 shadow-xs"
+                      className="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold transition-colors flex items-center gap-1 shadow-xs"
                     >
                       <AlertTriangle className="w-3.5 h-3.5" /> Flag
                     </button>
@@ -367,43 +367,43 @@ export default function AdminDashboard() {
 
       {/* TAB 3: TAXONOMY BUILDER (SRS Adaptability 4.3) */}
       {activeAdminTab === 'taxonomy' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 font-mono text-xs">
           {/* Add Category Form */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-            <div className="border-b border-slate-100 pb-3">
-              <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <FolderPlus className="w-4 h-4 text-indigo-600" /> Add Skill Category
+          <div className="bg-slate-900/90 p-6 rounded-3xl border border-slate-800 shadow-xl space-y-4">
+            <div className="border-b border-slate-800 pb-3">
+              <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                <FolderPlus className="w-4 h-4 text-cyan-400" /> Add Skill Category
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">Adaptable taxonomy without code modification (SRS 4.3)</p>
+              <p className="text-xs text-slate-400 mt-0.5 font-sans">Extensible taxonomy without code modifications (SRS 4.3)</p>
             </div>
 
             <form onSubmit={handleAddCategory} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Category Name</label>
+                <label className="block font-bold text-slate-300 mb-1">Category Name</label>
                 <input
                   type="text"
                   placeholder="e.g. Embedded & IoT Systems"
                   value={newCatName}
                   onChange={(e) => setNewCatName(e.target.value)}
-                  className="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 font-medium focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white focus:ring-1 focus:ring-cyan-500"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Description</label>
+                <label className="block font-bold text-slate-300 mb-1">Description</label>
                 <textarea
                   rows="2"
                   placeholder="Summary of skills under this category"
                   value={newCatDesc}
                   onChange={(e) => setNewCatDesc(e.target.value)}
-                  className="w-full text-xs rounded-xl border border-slate-300 p-2 font-medium"
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 p-2 text-white"
                 ></textarea>
               </div>
 
               <button
                 type="submit"
-                className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-colors"
+                className="w-full py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-bold shadow-md transition-colors"
               >
                 Create Category
               </button>
@@ -411,21 +411,21 @@ export default function AdminDashboard() {
           </div>
 
           {/* Add Standard Skill Form */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-            <div className="border-b border-slate-100 pb-3">
-              <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <Plus className="w-4 h-4 text-emerald-600" /> Add Skill to Taxonomy
+          <div className="bg-slate-900/90 p-6 rounded-3xl border border-slate-800 shadow-xl space-y-4">
+            <div className="border-b border-slate-800 pb-3">
+              <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                <Plus className="w-4 h-4 text-emerald-400" /> Add Skill to Taxonomy
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">Register standardized competencies</p>
+              <p className="text-xs text-slate-400 mt-0.5 font-sans">Register standardized competency definitions</p>
             </div>
 
             <form onSubmit={handleAddSkill} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Target Category</label>
+                <label className="block font-bold text-slate-300 mb-1">Target Category</label>
                 <select
                   value={newSkillCatId}
                   onChange={(e) => setNewSkillCatId(e.target.value)}
-                  className="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 font-medium"
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white"
                 >
                   <option value="cat-web">Web Development</option>
                   <option value="cat-cloud">Cloud & DevOps</option>
@@ -437,31 +437,31 @@ export default function AdminDashboard() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Skill Name</label>
+                <label className="block font-bold text-slate-300 mb-1">Skill Name</label>
                 <input
                   type="text"
                   placeholder="e.g. Kubernetes, Rust, GraphQL"
                   value={newSkillName}
                   onChange={(e) => setNewSkillName(e.target.value)}
-                  className="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 font-medium focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white focus:ring-1 focus:ring-emerald-500"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Skill Description</label>
+                <label className="block font-bold text-slate-300 mb-1">Skill Description</label>
                 <textarea
                   rows="2"
                   placeholder="Core criteria of this competency"
                   value={newSkillDesc}
                   onChange={(e) => setNewSkillDesc(e.target.value)}
-                  className="w-full text-xs rounded-xl border border-slate-300 p-2 font-medium"
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 p-2 text-white"
                 ></textarea>
               </div>
 
               <button
                 type="submit"
-                className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white text-xs font-bold shadow-xs transition-colors"
+                className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black shadow-md transition-colors"
               >
                 Register Skill
               </button>
@@ -472,45 +472,45 @@ export default function AdminDashboard() {
 
       {/* TAB 4: AUDIT LOG VIEWER (SRS S5) */}
       {activeAdminTab === 'audit' && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div className="bg-slate-900/90 rounded-3xl border border-slate-800 p-6 shadow-xl space-y-4 font-mono text-xs">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
             <div>
-              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <History className="w-5 h-5 text-indigo-600" />
-                Administrative Audit Logs (SRS S5)
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <History className="w-5 h-5 text-violet-400" />
+                Administrative Audit Trail (SRS S5)
               </h2>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-400 font-sans mt-0.5">
                 Timestamped immutable records of all moderation and administrative interventions.
               </p>
             </div>
-            <span className="text-xs font-mono text-slate-400">Total Entries: {auditLogs.length}</span>
+            <span className="text-slate-500 font-mono">Entries: {auditLogs.length}</span>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider font-bold">
+            <table className="w-full text-left">
+              <thead className="bg-slate-950/80 border-b border-slate-800 text-slate-400 uppercase tracking-widest font-bold text-[10px]">
                 <tr>
-                  <th className="py-2.5 px-3">Timestamp</th>
-                  <th className="py-2.5 px-3">Admin</th>
-                  <th className="py-2.5 px-3">Action</th>
-                  <th className="py-2.5 px-3">Target</th>
-                  <th className="py-2.5 px-3">Details</th>
+                  <th className="py-3 px-3">Timestamp</th>
+                  <th className="py-3 px-3">Admin</th>
+                  <th className="py-3 px-3">Action</th>
+                  <th className="py-3 px-3">Target</th>
+                  <th className="py-3 px-3">Details</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-800/60">
                 {auditLogs.map(log => (
-                  <tr key={log.id} className="hover:bg-slate-50/70">
-                    <td className="py-2.5 px-3 font-mono text-slate-500 whitespace-nowrap">
+                  <tr key={log.id} className="hover:bg-slate-800/40">
+                    <td className="py-3 px-3 text-slate-500 whitespace-nowrap text-[11px]">
                       {new Date(log.created_at).toLocaleString()}
                     </td>
-                    <td className="py-2.5 px-3 font-bold text-slate-800">{log.admin_name}</td>
-                    <td className="py-2.5 px-3">
-                      <span className="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 font-mono font-bold text-[10px]">
+                    <td className="py-3 px-3 font-bold text-white">{log.admin_name}</td>
+                    <td className="py-3 px-3">
+                      <span className="px-2 py-0.5 rounded-md bg-purple-500/15 text-purple-300 border border-purple-500/30 text-[10px] font-bold">
                         {log.action}
                       </span>
                     </td>
-                    <td className="py-2.5 px-3 font-mono text-slate-500">{log.target_type}</td>
-                    <td className="py-2.5 px-3 text-slate-600">{log.details}</td>
+                    <td className="py-3 px-3 text-slate-400">{log.target_type}</td>
+                    <td className="py-3 px-3 text-slate-300 font-sans">{log.details}</td>
                   </tr>
                 ))}
               </tbody>

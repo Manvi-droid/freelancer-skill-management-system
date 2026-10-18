@@ -19,7 +19,6 @@ import assessmentRoutes from './routes/assessments.js';
 import searchRoutes from './routes/search.js';
 import adminRoutes from './routes/admin.js';
 import notificationRoutes from './routes/notifications.js';
-import awsRoutes from './routes/aws-status.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -54,15 +53,15 @@ app.use('/api/assessments', assessmentRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationRoutes);
-app.use('/api/aws', awsRoutes);
 
-// Health check endpoint (for AWS Route 53 / ELB / Container health checks)
+// Health check endpoint (SRS P1 / System Monitoring)
 app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
     service: 'Freelancer Skill Management System (FSMS)',
-    cloudProvider: 'AWS Free Tier Compatible',
+    version: '1.1.0',
+    specification: 'IEEE 830 Standard',
   });
 });
 
@@ -91,7 +90,7 @@ app.use((err, req, res, next) => {
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`====================================================`);
   console.log(`🚀 FSMS Server running at http://localhost:${PORT}`);
-  console.log(`🌐 AWS Free Tier footprint: ~80MB RAM / 1024MB RAM max`);
+  console.log(`📋 Freelancer Skill Management System (SRS v1.1)`);
   console.log(`====================================================`);
 });
 

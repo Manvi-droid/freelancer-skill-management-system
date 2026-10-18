@@ -1,7 +1,7 @@
 {
   "name": "freelancer-skill-management-system",
   "version": "1.0.0",
-  "description": "Freelancer Skill Management System (FSMS) - AWS Free Tier Architecture",
+  "description": "Freelancer Skill Management System (FSMS) - IEEE 830 Compliant Platform",
   "main": "server/server.js",
   "type": "module",
   "scripts": {
@@ -12,11 +12,12 @@
     "test": "node --test server/tests/api.test.js"
   },
   "keywords": [
-    "aws-free-tier",
+    "freelancer-skill-management-system",
     "freelancer-skills",
     "skill-verification",
     "skill-endorsements",
-    "assessments"
+    "assessments",
+    "credly-badges"
   ],
   "author": "Manvi Sharma",
   "license": "MIT",

@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
-  Briefcase, 
   Search, 
   Sparkles, 
-  CheckCircle, 
   ShieldAlert, 
-  Cloud, 
   Bell, 
   UserCheck, 
-  ExternalLink,
-  Download,
-  Trash2,
-  Check
+  Download, 
+  Check, 
+  Zap, 
+  Award,
+  Layers,
+  ChevronDown
 } from 'lucide-react';
 
 export default function Navbar({ activeTab, setActiveTab, onOpenGdpr }) {
   const { user, token, switchDemoRole, unreadNotifications, setUnreadNotifications } = useAuth();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [notificationsList, setNotificationsList] = useState([]);
+  const [personaMenuOpen, setPersonaMenuOpen] = useState(false);
 
   // Fetch notifications when opening bell
   useEffect(() => {
@@ -48,188 +48,161 @@ export default function Navbar({ activeTab, setActiveTab, onOpenGdpr }) {
     }
   };
 
+  const navItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: UserCheck, color: 'text-violet-400' },
+    { id: 'skills', label: 'Skills & Vault', icon: Layers, color: 'text-violet-400' },
+    { id: 'assessments', label: 'Assessments', icon: Award, color: 'text-emerald-400' },
+    { id: 'search', label: 'Talent Market', icon: Search, color: 'text-cyan-400' },
+    { id: 'automatch', label: 'Auto-Match', icon: Sparkles, color: 'text-amber-400' },
+    { id: 'admin', label: 'Admin Desk', icon: ShieldAlert, color: 'text-purple-400' },
+  ];
+
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
-      {/* Top Banner: AWS Free Tier & Demo Fast Switch Bar */}
-      <div className="bg-slate-900 text-slate-200 text-xs py-1.5 px-4 sm:px-8 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="flex h-2 w-2 relative">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          <span className="font-medium text-emerald-400">AWS Free Tier Ready</span>
-          <span className="text-slate-400">|</span>
-          <span className="text-slate-300 hidden md:inline">EC2 t2.micro (1GB RAM) • S3 Storage • Zero-Cost Cloud Design</span>
-        </div>
-
-        {/* 1-Click Persona Switcher for Quick Grading/Evaluation */}
-        <div className="flex items-center gap-2">
-          <span className="text-slate-400 text-[11px] hidden sm:inline">Active Persona:</span>
-          <div className="inline-flex rounded-md shadow-xs bg-slate-800 p-0.5 border border-slate-700">
-            <button
-              onClick={() => switchDemoRole('freelancer')}
-              className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors ${
-                user?.role === 'freelancer' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              Freelancer (Riya)
-            </button>
-            <button
-              onClick={() => switchDemoRole('client')}
-              className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors ${
-                user?.role === 'client' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              Client (Apex Tech)
-            </button>
-            <button
-              onClick={() => switchDemoRole('admin')}
-              className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors ${
-                user?.role === 'admin' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              Admin
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Navigation */}
+    <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo & Branding */}
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('dashboard')}>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-bold shadow-md shadow-indigo-200">
-              <Briefcase className="w-5 h-5" />
+          
+          {/* Logo */}
+          <div 
+            className="flex items-center gap-2.5 cursor-pointer flex-shrink-0" 
+            onClick={() => setActiveTab('dashboard')}
+          >
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 to-cyan-500 flex items-center justify-center text-white shadow-md shadow-violet-500/20 border border-violet-400/30">
+              <Zap className="w-4 h-4 text-white" />
             </div>
             <div>
-              <div className="font-bold text-slate-900 tracking-tight text-base sm:text-lg flex items-center gap-1.5">
-                FSMS <span className="text-indigo-600 text-xs px-1.5 py-0.5 bg-indigo-50 border border-indigo-200 rounded font-semibold">v1.1</span>
+              <div className="font-black text-white text-base tracking-tight flex items-center gap-1.5">
+                FSMS <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-violet-500/20 text-violet-300 border border-violet-500/30 font-bold">v1.1</span>
               </div>
-              <div className="text-[11px] text-slate-500 hidden sm:block">Freelancer Skill Management System</div>
+              <div className="text-[9px] font-mono text-slate-500 tracking-wider uppercase hidden sm:block">
+                Freelancer Skill Management System
+              </div>
             </div>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1">
-            <button
-              onClick={() => setActiveTab('dashboard')}
-              className={`px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                activeTab === 'dashboard'
-                  ? 'bg-indigo-50 text-indigo-700 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-              }`}
-            >
-              <UserCheck className="w-4 h-4" />
-              Freelancer Hub
-            </button>
-
-            <button
-              onClick={() => setActiveTab('search')}
-              className={`px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                activeTab === 'search'
-                  ? 'bg-indigo-50 text-indigo-700 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-              }`}
-            >
-              <Search className="w-4 h-4" />
-              Search & Filters (U1)
-            </button>
-
-            <button
-              onClick={() => setActiveTab('automatch')}
-              className={`px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                activeTab === 'automatch'
-                  ? 'bg-indigo-50 text-indigo-700 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-              }`}
-            >
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              Smart Auto-Match (F7)
-            </button>
-
-            <button
-              onClick={() => setActiveTab('assessments')}
-              className={`px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                activeTab === 'assessments'
-                  ? 'bg-indigo-50 text-indigo-700 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-              }`}
-            >
-              <CheckCircle className="w-4 h-4 text-emerald-600" />
-              Assessments (F5)
-            </button>
-
-            <button
-              onClick={() => setActiveTab('admin')}
-              className={`px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                activeTab === 'admin'
-                  ? 'bg-indigo-50 text-indigo-700 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-              }`}
-            >
-              <ShieldAlert className="w-4 h-4 text-purple-600" />
-              Admin Center (F9)
-            </button>
-
-            <button
-              onClick={() => setActiveTab('aws')}
-              className={`px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                activeTab === 'aws'
-                  ? 'bg-indigo-50 text-indigo-700 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-              }`}
-            >
-              <Cloud className="w-4 h-4 text-sky-600" />
-              AWS Cloud
-            </button>
+          {/* Navigation Tabs (Linear / Stripe Style) */}
+          <nav className="hidden lg:flex items-center gap-1 font-medium font-mono text-xs">
+            {navItems.map(item => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-all ${
+                    isActive
+                      ? 'bg-slate-800 text-white border border-slate-700 shadow-xs font-bold'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
+                  }`}
+                >
+                  <Icon className={`w-3.5 h-3.5 ${isActive ? item.color : 'text-slate-500'}`} />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
           </nav>
 
-          {/* Right Action Icons: Notification Bell & GDPR Button */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Notification Bell (SRS F8, P2) */}
+          {/* Right Controls: Persona Switcher, Notification Bell, GDPR, User Avatar */}
+          <div className="flex items-center gap-2.5">
+            {/* Minimalist Persona Switcher Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setPersonaMenuOpen(!personaMenuOpen)}
+                className="px-2.5 py-1.5 rounded-xl border border-slate-800 bg-slate-900 text-xs font-mono font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-1.5"
+                title="Switch Demo Role"
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span className="hidden sm:inline capitalize">{user?.role || 'freelancer'}</span>
+                <ChevronDown className="w-3 h-3 text-slate-500" />
+              </button>
+
+              {personaMenuOpen && (
+                <div className="absolute right-0 mt-2 w-48 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl py-1.5 z-50 text-xs font-mono animate-in fade-in zoom-in-95 duration-100">
+                  <div className="px-3 py-1 text-[10px] text-slate-500 font-bold uppercase tracking-wider border-b border-slate-800 mb-1">
+                    Select Persona
+                  </div>
+                  <button
+                    onClick={() => {
+                      switchDemoRole('freelancer');
+                      setPersonaMenuOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-1.5 flex items-center justify-between hover:bg-slate-800 ${
+                      user?.role === 'freelancer' ? 'text-violet-400 font-bold' : 'text-slate-300'
+                    }`}
+                  >
+                    <span>Riya (Freelancer)</span>
+                    {user?.role === 'freelancer' && <Check className="w-3 h-3 text-violet-400" />}
+                  </button>
+                  <button
+                    onClick={() => {
+                      switchDemoRole('client');
+                      setPersonaMenuOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-1.5 flex items-center justify-between hover:bg-slate-800 ${
+                      user?.role === 'client' ? 'text-cyan-400 font-bold' : 'text-slate-300'
+                    }`}
+                  >
+                    <span>Apex Tech (Client)</span>
+                    {user?.role === 'client' && <Check className="w-3 h-3 text-cyan-400" />}
+                  </button>
+                  <button
+                    onClick={() => {
+                      switchDemoRole('admin');
+                      setPersonaMenuOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-1.5 flex items-center justify-between hover:bg-slate-800 ${
+                      user?.role === 'admin' ? 'text-amber-400 font-bold' : 'text-slate-300'
+                    }`}
+                  >
+                    <span>System Admin</span>
+                    {user?.role === 'admin' && <Check className="w-3 h-3 text-amber-400" />}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Notification Bell */}
             <div className="relative">
               <button
                 onClick={() => setNotificationsOpen(!notificationsOpen)}
-                className="relative p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                className="relative p-2 rounded-xl text-slate-400 hover:text-white bg-slate-900 border border-slate-800 transition-colors"
                 title="Notifications"
               >
-                <Bell className="w-5 h-5" />
+                <Bell className="w-4 h-4" />
                 {unreadNotifications > 0 && (
-                  <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-xs">
+                  <span className="absolute top-1 right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-xs">
                     {unreadNotifications}
                   </span>
                 )}
               </button>
 
-              {/* Notification Popup Dropdown */}
               {notificationsOpen && (
-                <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-xl bg-white shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
-                  <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
-                    <span className="font-semibold text-slate-800 text-sm">Notifications</span>
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl py-3 z-50 text-slate-100 animate-in fade-in zoom-in-95 duration-100 font-mono">
+                  <div className="px-4 pb-2 border-b border-slate-800 flex items-center justify-between">
+                    <span className="font-bold text-white text-xs uppercase tracking-wider">Notifications</span>
                     {unreadNotifications > 0 && (
                       <button
                         onClick={markAllRead}
-                        className="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1"
+                        className="text-[11px] text-violet-400 hover:text-violet-300 font-medium flex items-center gap-1"
                       >
                         <Check className="w-3.5 h-3.5" /> Mark all read
                       </button>
                     )}
                   </div>
 
-                  <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
+                  <div className="max-h-72 overflow-y-auto divide-y divide-slate-800/60">
                     {notificationsList.length === 0 ? (
-                      <div className="p-4 text-center text-xs text-slate-500">No notifications yet.</div>
+                      <div className="p-4 text-center text-xs text-slate-500 font-mono">No notifications yet.</div>
                     ) : (
                       notificationsList.map(n => (
-                        <div key={n.id} className={`p-3 text-xs ${n.is_read ? 'bg-white' : 'bg-indigo-50/50'}`}>
-                          <div className="font-semibold text-slate-800 flex items-center justify-between">
+                        <div key={n.id} className={`p-3 text-xs ${n.is_read ? 'bg-transparent' : 'bg-violet-950/20'}`}>
+                          <div className="font-bold text-white flex items-center justify-between">
                             <span>{n.title}</span>
-                            <span className="text-[10px] text-slate-400 font-normal">
+                            <span className="text-[10px] text-slate-500">
                               {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
                           </div>
-                          <p className="text-slate-600 mt-1 text-[11px] leading-relaxed">{n.message}</p>
+                          <p className="text-slate-400 mt-1 text-[11px] font-sans leading-relaxed">{n.message}</p>
                         </div>
                       ))
                     )}
@@ -238,82 +211,41 @@ export default function Navbar({ activeTab, setActiveTab, onOpenGdpr }) {
               )}
             </div>
 
-            {/* GDPR Compliance & Data Portability Button (SRS S6) */}
+            {/* GDPR Modal Button */}
             <button
               onClick={onOpenGdpr}
-              className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-900 text-xs font-mono font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
               title="GDPR Data Export & Privacy"
             >
-              <Download className="w-3.5 h-3.5 text-slate-500" />
+              <Download className="w-3.5 h-3.5 text-violet-400" />
               <span>GDPR</span>
             </button>
 
-            {/* Active User Avatar & Role */}
-            <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
+            {/* User Avatar */}
+            <div className="flex items-center gap-2 pl-2 border-l border-slate-800">
               <img
                 src={user?.avatar_url || 'https://api.dicebear.com/7.x/initials/svg?seed=RK'}
                 alt={user?.full_name}
-                className="w-8 h-8 rounded-full border border-slate-300 object-cover"
+                className="w-8 h-8 rounded-full border border-slate-700 object-cover"
               />
-              <div className="hidden xl:block text-left">
-                <div className="text-xs font-semibold text-slate-800 truncate max-w-[120px]">{user?.full_name}</div>
-                <div className="text-[10px] text-slate-500 capitalize">{user?.role}</div>
-              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Mobile Tab Navigation Bar */}
-      <div className="lg:hidden flex items-center justify-around border-t border-slate-100 bg-slate-50 px-2 py-1.5 overflow-x-auto text-[11px]">
-        <button
-          onClick={() => setActiveTab('dashboard')}
-          className={`px-2 py-1 rounded font-medium whitespace-nowrap ${
-            activeTab === 'dashboard' ? 'bg-indigo-600 text-white' : 'text-slate-600'
-          }`}
-        >
-          Hub
-        </button>
-        <button
-          onClick={() => setActiveTab('search')}
-          className={`px-2 py-1 rounded font-medium whitespace-nowrap ${
-            activeTab === 'search' ? 'bg-indigo-600 text-white' : 'text-slate-600'
-          }`}
-        >
-          Search (U1)
-        </button>
-        <button
-          onClick={() => setActiveTab('automatch')}
-          className={`px-2 py-1 rounded font-medium whitespace-nowrap ${
-            activeTab === 'automatch' ? 'bg-indigo-600 text-white' : 'text-slate-600'
-          }`}
-        >
-          Auto-Match
-        </button>
-        <button
-          onClick={() => setActiveTab('assessments')}
-          className={`px-2 py-1 rounded font-medium whitespace-nowrap ${
-            activeTab === 'assessments' ? 'bg-indigo-600 text-white' : 'text-slate-600'
-          }`}
-        >
-          Assessments
-        </button>
-        <button
-          onClick={() => setActiveTab('admin')}
-          className={`px-2 py-1 rounded font-medium whitespace-nowrap ${
-            activeTab === 'admin' ? 'bg-indigo-600 text-white' : 'text-slate-600'
-          }`}
-        >
-          Admin
-        </button>
-        <button
-          onClick={() => setActiveTab('aws')}
-          className={`px-2 py-1 rounded font-medium whitespace-nowrap ${
-            activeTab === 'aws' ? 'bg-indigo-600 text-white' : 'text-slate-600'
-          }`}
-        >
-          AWS
-        </button>
+      <div className="lg:hidden flex items-center justify-around border-t border-slate-800 bg-slate-950 px-2 py-2 overflow-x-auto text-[11px] font-mono">
+        {navItems.map(item => (
+          <button
+            key={item.id}
+            onClick={() => setActiveTab(item.id)}
+            className={`px-2 py-1 rounded-lg font-medium whitespace-nowrap ${
+              activeTab === item.id ? 'bg-violet-600 text-white font-bold' : 'text-slate-400'
+            }`}
+          >
+            {item.label}
+          </button>
+        ))}
       </div>
     </header>
   );

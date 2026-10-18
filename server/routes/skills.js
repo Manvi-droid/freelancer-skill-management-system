@@ -133,7 +133,7 @@ router.delete('/my-skills/:id', authenticateToken, requireRole('freelancer'), (r
 });
 
 // Upload Supporting Documentation / Evidence / Portfolio Item (SRS F3, S7)
-// Integrates with AWS S3 Free Tier or Local Storage
+// Integrates with File Storage Engine (Local / Object Storage)
 router.post('/evidence', authenticateToken, requireRole('freelancer'), upload.single('evidenceFile'), async (req, res) => {
   try {
     const { freelancer_skill_id, title = 'Skill Evidence', notes = '' } = req.body;
@@ -152,7 +152,7 @@ router.post('/evidence', authenticateToken, requireRole('freelancer'), upload.si
       return res.status(404).json({ error: 'Selected skill was not found on your profile.' });
     }
 
-    // Process upload via AWS S3 Free Tier adapter or local storage
+    // Process upload via evidence file storage adapter
     const uploadResult = await uploadEvidenceFile(req.file);
 
     const id = `ev-${uuidv4().substring(0, 8)}`;

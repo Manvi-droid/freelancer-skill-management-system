@@ -1,52 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import SkillBadge from '../components/SkillBadge';
+import CredlyBadgeModal from '../components/CredlyBadgeModal';
 import { 
-  Plus, 
-  UploadCloud, 
-  Trash2, 
-  FileText, 
-  Award, 
-  CheckCircle2, 
-  Clock, 
   Star, 
   MapPin, 
   DollarSign, 
   ExternalLink,
   Edit3,
-  ShieldCheck,
-  Check,
-  X
+  ShieldCheck, 
+  ArrowRight,
+  Layers,
+  Award,
+  Search,
+  Sparkles,
+  FileText,
+  X,
+  CheckCircle2,
+  TrendingUp,
+  Cpu
 } from 'lucide-react';
 
-export default function FreelancerDashboard({ onTakeAssessment, onViewPublicProfile }) {
+export default function FreelancerDashboard({ 
+  onNavigateTab, 
+  onViewPublicProfile 
+}) {
   const { user, token, refreshUser } = useAuth();
   const [skills, setSkills] = useState([]);
+  const [evidenceCount, setEvidenceCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [showAddSkillModal, setShowAddSkillModal] = useState(false);
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
-  const [selectedSkillForEvidence, setSelectedSkillForEvidence] = useState(null);
-  const [uploadLoading, setUploadLoading] = useState(false);
   const [message, setMessage] = useState(null);
+  const [selectedCredlySkill, setSelectedCredlySkill] = useState(null);
 
-  // Form states
-  const [newSkillName, setNewSkillName] = useState('');
-  const [newSkillCategory, setNewSkillCategory] = useState('Web Development');
-  const [newSkillLevel, setNewSkillLevel] = useState('Intermediate');
-
+  // Profile edit states
   const [editFullName, setEditFullName] = useState(user?.full_name || '');
   const [editTitle, setEditTitle] = useState(user?.title || '');
   const [editBio, setEditBio] = useState(user?.bio || '');
   const [editLocation, setEditLocation] = useState(user?.location || '');
   const [editHourlyRate, setEditHourlyRate] = useState(user?.hourly_rate || 55);
 
-  // Evidence upload form
-  const [evidenceTitle, setEvidenceTitle] = useState('');
-  const [evidenceFile, setEvidenceFile] = useState(null);
-  const [evidenceNotes, setEvidenceNotes] = useState('');
-
-  // Fetch current skills
-  const fetchMySkills = () => {
+  useEffect(() => {
     if (!token) return;
     setLoading(true);
     fetch('/api/skills/my-skills', {
@@ -55,19 +49,14 @@ export default function FreelancerDashboard({ onTakeAssessment, onViewPublicProf
       .then(res => res.json())
       .then(data => {
         setSkills(data.skills || []);
-        if (data.skills?.length > 0 && !selectedSkillForEvidence) {
-          setSelectedSkillForEvidence(data.skills[0].id);
-        }
+        const totalEv = (data.skills || []).reduce((acc, s) => acc + (s.evidence?.length || 0), 0);
+        setEvidenceCount(totalEv);
         setLoading(false);
       })
       .catch(err => {
-        console.error('Error fetching skills:', err);
+        console.error('Error fetching dashboard data:', err);
         setLoading(false);
       });
-  };
-
-  useEffect(() => {
-    fetchMySkills();
   }, [token]);
 
   useEffect(() => {
@@ -80,55 +69,6 @@ export default function FreelancerDashboard({ onTakeAssessment, onViewPublicProf
     }
   }, [user]);
 
-  // Add new skill (SRS F2: simplified interaction takes <= 3 clicks)
-  const handleAddSkill = async (e) => {
-    e.preventDefault();
-    if (!newSkillName.trim()) return;
-
-    try {
-      const res = await fetch('/api/skills/my-skills', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          skill_name: newSkillName.trim(),
-          category_name: newSkillCategory,
-          proficiency_level: newSkillLevel,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to add skill');
-
-      setMessage({ type: 'success', text: data.message });
-      setNewSkillName('');
-      setShowAddSkillModal(false);
-      fetchMySkills();
-    } catch (err) {
-      setMessage({ type: 'error', text: err.message });
-    }
-  };
-
-  // Delete skill
-  const handleDeleteSkill = async (skillId) => {
-    if (!confirm('Are you sure you want to remove this skill from your profile?')) return;
-    try {
-      const res = await fetch(`/api/skills/my-skills/${skillId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        fetchMySkills();
-        setMessage({ type: 'success', text: 'Skill removed.' });
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // Update profile info
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     try {
@@ -156,540 +96,321 @@ export default function FreelancerDashboard({ onTakeAssessment, onViewPublicProf
     }
   };
 
-  // Upload evidence (SRS F3, S7, AWS S3 Free Tier)
-  const handleUploadEvidence = async (e) => {
-    e.preventDefault();
-    if (!evidenceFile) {
-      setMessage({ type: 'error', text: 'Please select a file to upload.' });
-      return;
-    }
-    if (!selectedSkillForEvidence) {
-      setMessage({ type: 'error', text: 'Please select a skill to link this evidence to.' });
-      return;
-    }
-
-    setUploadLoading(true);
-    const formData = new FormData();
-    formData.append('freelancer_skill_id', selectedSkillForEvidence);
-    formData.append('title', evidenceTitle || evidenceFile.name);
-    formData.append('evidenceFile', evidenceFile);
-    formData.append('notes', evidenceNotes);
-
-    try {
-      const res = await fetch('/api/skills/evidence', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Upload failed');
-
-      setMessage({ type: 'success', text: data.message });
-      setEvidenceFile(null);
-      setEvidenceTitle('');
-      setEvidenceNotes('');
-      setUploadLoading(false);
-      fetchMySkills();
-    } catch (err) {
-      setMessage({ type: 'error', text: err.message });
-      setUploadLoading(false);
-    }
-  };
-
-  // Delete evidence
-  const handleDeleteEvidence = async (evId) => {
-    try {
-      const res = await fetch(`/api/skills/evidence/${evId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        fetchMySkills();
-        setMessage({ type: 'success', text: 'Evidence item deleted.' });
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // All evidence items across skills
-  const allEvidence = skills.flatMap(s => (s.evidence || []).map(e => ({ ...e, skill_name: s.skill_name })));
+  const verifiedSkillsCount = skills.filter(s => s.status === 'Assessed' || s.status === 'Endorsed').length;
+  const totalEndorsements = skills.reduce((acc, s) => acc + (s.endorsement_count || 0), 0);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-200">
-      {/* Alert banner */}
+      {/* Alert Banner */}
       {message && (
         <div
-          className={`mb-6 p-4 rounded-xl flex items-center justify-between text-sm ${
+          className={`mb-6 p-4 rounded-2xl flex items-center justify-between text-xs font-mono ${
             message.type === 'success'
-              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-              : 'bg-rose-50 text-rose-800 border border-rose-200'
+              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+              : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
           }`}
         >
           <span>{message.text}</span>
-          <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-slate-600">
+          <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-white">
             <X className="w-4 h-4" />
           </button>
         </div>
       )}
 
-      {/* SRS Wireframe Layout Banner */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-indigo-50 via-white to-violet-50 p-4 rounded-2xl border border-indigo-100 shadow-xs">
+      {/* Top Welcome & Minimalist Header */}
+      <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800">
         <div>
-          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 mb-1">
-            SRS Wireframe Prototype Implementation (Page 8)
+          <span className="text-[11px] font-mono uppercase tracking-widest text-violet-400 font-bold block mb-1">
+            Freelancer Mission Control
           </span>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Freelancer Dashboard</h1>
-          <p className="text-xs text-slate-600">Manage your verified competencies, evidence portfolio, and endorsement statuses.</p>
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            Dashboard Overview
+          </h1>
+          <p className="text-xs text-slate-400 mt-0.5">
+            Quick status metrics and instant navigation to dedicated task areas.
+          </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <button
             onClick={() => onViewPublicProfile(user?.id || 'usr-riya')}
-            className="px-3.5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors"
+            className="px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-900/80 hover:bg-slate-800 text-slate-200 text-xs font-mono font-bold transition-all flex items-center gap-2 shadow-xs"
           >
-            <ExternalLink className="w-3.5 h-3.5" />
+            <ExternalLink className="w-3.5 h-3.5 text-cyan-400" />
             View Public Profile (U2)
           </button>
-          <button
-            onClick={onTakeAssessment}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all"
-          >
-            <Award className="w-4 h-4" />
-            Take Skill Assessment (F5)
-          </button>
         </div>
       </div>
 
-      {/* Main Two-Column Grid matching SRS Wireframe Page 8 */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      {/* Profile Overview Card (Page 8 Wireframe Prototype) + Quick Stats Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-10">
         
-        {/* LEFT COLUMN: Wireframe Freelancer Profile Card */}
-        <div className="lg:col-span-4 space-y-6">
-          <div className="bg-white rounded-2xl border-2 border-slate-800/80 shadow-md p-6 relative overflow-hidden text-center sm:text-left">
-            {/* Top Wireframe Badge */}
-            <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-4 pb-2 border-b border-dashed border-slate-200">
-              Freelancer Card Module
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
-              {/* Circular Initials Avatar matching Wireframe "RK" */}
-              <div className="w-20 h-20 rounded-full border-2 border-slate-900 bg-amber-100 text-slate-900 font-extrabold text-2xl flex items-center justify-center shadow-inner flex-shrink-0">
-                {user?.full_name ? user.full_name.split(' ').map(n => n[0]).join('') : 'RK'}
+        {/* Profile Card (SRS Wireframe Page 8 layout) */}
+        <div className="lg:col-span-5 bg-slate-900/90 rounded-3xl border border-slate-800 p-6 shadow-xl relative overflow-hidden">
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-violet-600 to-cyan-400 p-0.5 shadow-md flex-shrink-0">
+                <div className="w-full h-full rounded-2xl bg-slate-950 flex items-center justify-center font-black text-xl text-white font-mono">
+                  {user?.full_name ? user.full_name.split(' ').map(n => n[0]).join('') : 'RK'}
+                </div>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-slate-900">{user?.full_name || 'Riya kapoor'}</h2>
-                <p className="text-sm font-medium text-indigo-600">{user?.title || 'Full stacu Dev'}</p>
-                <div className="flex items-center gap-2 mt-1 text-xs text-slate-500">
+                <h2 className="text-xl font-bold text-white tracking-tight">{user?.full_name || 'Riya kapoor'}</h2>
+                <p className="text-xs font-mono font-semibold text-cyan-400">{user?.title || 'Full stacu Dev'}</p>
+                <div className="flex items-center gap-2 mt-1 text-xs text-slate-400 font-mono">
                   <span className="flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5" /> {user?.location || 'Remote'}
+                    <MapPin className="w-3 h-3 text-slate-500" /> {user?.location || 'Remote'}
                   </span>
                   <span>•</span>
-                  <span className="flex items-center gap-1">
-                    <DollarSign className="w-3.5 h-3.5" /> ${user?.hourly_rate || 55}/hr
+                  <span className="flex items-center gap-1 text-emerald-400 font-bold">
+                    <DollarSign className="w-3 h-3" /> ${user?.hourly_rate || 55}/hr
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Edit Profile Button (Matches wireframe [Edit profile]) */}
             <button
               onClick={() => setShowEditProfileModal(true)}
-              className="w-full mt-2 py-2 px-4 rounded-xl border-2 border-slate-900 hover:bg-slate-900 hover:text-white text-slate-900 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs"
+              className="p-2 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+              title="Edit Profile"
             >
-              <Edit3 className="w-3.5 h-3.5" />
-              Edit profile
+              <Edit3 className="w-4 h-4 text-violet-400" />
             </button>
-
-            {/* Wireframe Score Box (Matches bottom-left wireframe: "score. 7.4") */}
-            <div className="mt-6 pt-5 border-t border-slate-200 flex items-center justify-between">
-              <div className="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2 text-center">
-                <span className="text-[11px] font-mono text-slate-500 block">score</span>
-                <span className="text-xl font-black text-slate-900">{user?.rating ? (user.rating * 1.5).toFixed(1) : '7.4'}</span>
-              </div>
-
-              <div className="text-right">
-                <div className="flex items-center gap-1 text-amber-500 justify-end">
-                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                  <span className="text-sm font-bold text-slate-800">{user?.rating || 4.9}</span>
-                  <span className="text-xs text-slate-400">/5.0</span>
-                </div>
-                <div className="text-[11px] text-slate-500">{user?.reviews_count || 14} verified reviews</div>
-              </div>
-            </div>
-
-            {/* Bio */}
-            <div className="mt-4 text-xs text-slate-600 leading-relaxed text-left bg-slate-50 p-3 rounded-xl border border-slate-100">
-              {user?.bio || 'Full Stack Engineer cataloging verified skills and evidence.'}
-            </div>
           </div>
 
-          {/* Quick Platform Quality / Verification Checklist */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              Verification Status Overview
-            </h3>
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between items-center py-1 border-b border-slate-100">
-                <span className="text-slate-600">Total Skills Cataloged:</span>
-                <span className="font-bold text-slate-800">{skills.length}</span>
+          {/* Wireframe Score Box (Matches wireframe bottom-left: "score. 7.4") */}
+          <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
+            <div className="bg-slate-950/80 border border-slate-800 rounded-2xl px-5 py-2 text-center shadow-inner font-mono">
+              <span className="text-[10px] tracking-widest text-slate-500 uppercase block">score.</span>
+              <span className="text-xl font-black text-white">{user?.rating ? (user.rating * 1.5).toFixed(1) : '7.4'}</span>
+            </div>
+
+            <div className="text-right font-mono text-xs">
+              <div className="flex items-center gap-1 text-amber-400 justify-end">
+                <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                <span className="font-black text-white">{user?.rating || 4.9}</span>
+                <span className="text-slate-500 text-[10px]">/5.0</span>
               </div>
-              <div className="flex justify-between items-center py-1 border-b border-slate-100">
-                <span className="text-slate-600">Assessed by Test (F5):</span>
-                <span className="font-bold text-emerald-600">
-                  {skills.filter(s => s.status === 'Assessed').length}
-                </span>
-              </div>
-              <div className="flex justify-between items-center py-1 border-b border-slate-100">
-                <span className="text-slate-600">Endorsed by Peers/Clients:</span>
-                <span className="font-bold text-blue-600">
-                  {skills.filter(s => s.status === 'Endorsed').length}
-                </span>
-              </div>
-              <div className="flex justify-between items-center py-1">
-                <span className="text-slate-600">Uploaded Evidence Files:</span>
-                <span className="font-bold text-slate-800">{allEvidence.length}</span>
-              </div>
+              <div className="text-[11px] text-slate-400 mt-0.5">{user?.reviews_count || 14} verified reviews</div>
             </div>
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Skills list matching wireframe boxes & Evidence upload box */}
-        <div className="lg:col-span-8 space-y-6">
-          
-          {/* Skills Section with [+ Add] button (Matches wireframe) */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                  Skills
-                  <span className="text-xs font-normal text-slate-500">({skills.length} cataloged)</span>
-                </h2>
-                <p className="text-xs text-slate-500">Self-reported talents, verified endorsements, and test assessments</p>
-              </div>
-
-              {/* + Add Button matching wireframe */}
-              <button
-                onClick={() => setShowAddSkillModal(true)}
-                className="px-3 py-1.5 rounded-xl border-2 border-slate-900 hover:bg-slate-900 hover:text-white text-slate-900 text-xs font-bold transition-all flex items-center gap-1 shadow-xs"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                + Add
-              </button>
-            </div>
-
-            {/* List of Skills matching wireframe layout */}
-            {loading ? (
-              <div className="py-8 text-center text-xs text-slate-400">Loading skills...</div>
-            ) : skills.length === 0 ? (
-              <div className="text-center py-8 bg-slate-50 rounded-xl border border-dashed border-slate-300">
-                <p className="text-xs text-slate-500">No skills added yet.</p>
-                <button
-                  onClick={() => setShowAddSkillModal(true)}
-                  className="mt-2 text-xs font-semibold text-indigo-600 hover:text-indigo-800"
-                >
-                  Click here to add your first skill
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {skills.map(skill => (
-                  <div
-                    key={skill.id}
-                    className="p-4 rounded-xl border-2 border-slate-900/80 bg-white hover:border-indigo-600 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs"
-                  >
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-base font-bold text-slate-900">{skill.skill_name}</span>
-                        <span className="text-[11px] text-slate-400">({skill.category_name})</span>
-                      </div>
-                      <div className="text-xs text-slate-500 capitalize mt-0.5 font-medium">
-                        Level: <span className="text-slate-800 font-semibold">{skill.proficiency_level}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <SkillBadge
-                        status={skill.status}
-                        score={skill.assessment_score}
-                        endorsementCount={skill.endorsement_count}
-                        level={skill.proficiency_level}
-                      />
-
-                      {/* Delete skill */}
-                      <button
-                        onClick={() => handleDeleteSkill(skill.id)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
-                        title="Remove skill"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+        {/* 4 Minimalist Metric Counters */}
+        <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono text-xs">
+          <div className="p-5 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-xl flex flex-col justify-between">
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Cataloged Skills</span>
+            <span className="text-3xl font-black text-white my-1">{skills.length}</span>
+            <span className="text-[10px] text-violet-400 font-semibold">Active in matrix</span>
           </div>
 
-          {/* Wireframe Drag Evidence or Browse Files Dropzone Box */}
-          <div className="bg-white rounded-2xl border-2 border-slate-900/80 p-6 shadow-xs">
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <UploadCloud className="w-5 h-5 text-indigo-600" />
-                  Supporting Evidence & Portfolio (F3, S7)
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Upload certificates, project samples, or code audits. Files are stored on <span className="font-semibold text-indigo-600">AWS S3 Free Tier</span> or local storage.
-                </p>
+          <div className="p-5 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-xl flex flex-col justify-between">
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Credly Badges</span>
+            <span className="text-3xl font-black text-emerald-400 my-1">{verifiedSkillsCount}</span>
+            <span className="text-[10px] text-emerald-400 font-semibold">Verified Proof</span>
+          </div>
+
+          <div className="p-5 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-xl flex flex-col justify-between">
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Vault Evidence</span>
+            <span className="text-3xl font-black text-cyan-400 my-1">{evidenceCount}</span>
+            <span className="text-[10px] text-slate-400">Certificates & PDFs</span>
+          </div>
+
+          <div className="p-5 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-xl flex flex-col justify-between">
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Endorsements</span>
+            <span className="text-3xl font-black text-amber-400 my-1">+{totalEndorsements}</span>
+            <span className="text-[10px] text-amber-400 font-semibold">Peer verified</span>
+          </div>
+        </div>
+      </div>
+
+      {/* SPECIFIC AREAS FOR SPECIFIC TASKS (4 Quick Task Navigation Cards) */}
+      <div className="mb-10">
+        <div className="mb-4">
+          <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+            <Cpu className="w-5 h-5 text-violet-400" />
+            Specific Task Workspaces
+          </h2>
+          <p className="text-xs text-slate-400">
+            Click any task module to jump directly to that dedicated workspace.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Task 1: Skills & Vault */}
+          <div 
+            onClick={() => onNavigateTab('skills')}
+            className="p-6 rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-violet-500/60 transition-all cursor-pointer shadow-xl group hover:glow-purple flex flex-col justify-between"
+          >
+            <div>
+              <div className="w-12 h-12 rounded-2xl bg-violet-500/10 text-violet-400 flex items-center justify-center mb-4 border border-violet-500/20 group-hover:scale-105 transition-transform">
+                <Layers className="w-6 h-6" />
               </div>
+              <h3 className="font-bold text-white text-base group-hover:text-violet-300 transition-colors">
+                Skills & Vault
+              </h3>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                Add technical skills, inspect Credly verified credentials, and upload portfolio proofs to your secure vault.
+              </p>
             </div>
 
-            {/* Dropzone Form matching wireframe box */}
-            <form onSubmit={handleUploadEvidence} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Link to Skill</label>
-                  <select
-                    value={selectedSkillForEvidence || ''}
-                    onChange={(e) => setSelectedSkillForEvidence(e.target.value)}
-                    className="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
-                  >
-                    {skills.map(s => (
-                      <option key={s.id} value={s.id}>
-                        {s.skill_name} ({s.proficiency_level})
-                      </option>
-                    ))}
-                  </select>
-                </div>
+            <div className="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-mono font-bold text-violet-400">
+              <span>Open Vault</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Evidence Title</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. AWS Certified Developer Certificate"
-                    value={evidenceTitle}
-                    onChange={(e) => setEvidenceTitle(e.target.value)}
-                    className="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
-                  />
-                </div>
+          {/* Task 2: Assessment Arena */}
+          <div 
+            onClick={() => onNavigateTab('assessments')}
+            className="p-6 rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-emerald-500/60 transition-all cursor-pointer shadow-xl group hover:glow-emerald flex flex-col justify-between"
+          >
+            <div>
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4 border border-emerald-500/20 group-hover:scale-105 transition-transform">
+                <Award className="w-6 h-6" />
               </div>
+              <h3 className="font-bold text-white text-base group-hover:text-emerald-300 transition-colors">
+                Assessment Arena
+              </h3>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                Take timed HackerRank-style competency quizzes to earn verified badges with automated scoring.
+              </p>
+            </div>
 
-              {/* Wireframe dashed upload box: "drag evidence or browse files: certificates, portfolio" */}
-              <div className="border-2 border-dashed border-slate-400 hover:border-indigo-500 rounded-2xl p-6 text-center bg-slate-50/50 hover:bg-indigo-50/20 transition-all cursor-pointer relative">
-                <input
-                  type="file"
-                  id="evidenceInput"
-                  onChange={(e) => setEvidenceFile(e.target.files[0])}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  accept=".pdf,.png,.jpg,.jpeg,.webp,.zip"
-                />
-                <div className="flex flex-col items-center justify-center pointer-events-none">
-                  <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mb-2">
-                    <UploadCloud className="w-6 h-6" />
-                  </div>
-                  <p className="text-sm font-bold text-slate-800">
-                    {evidenceFile ? `Selected: ${evidenceFile.name}` : 'drag evidence or browse files'}
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1 font-mono">
-                    certificates, portfolio, work samples (PDF, PNG, JPG, max 10MB)
-                  </p>
-                </div>
+            <div className="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-mono font-bold text-emerald-400">
+              <span>Take Test</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </div>
+
+          {/* Task 3: Talent Search */}
+          <div 
+            onClick={() => onNavigateTab('search')}
+            className="p-6 rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-cyan-500/60 transition-all cursor-pointer shadow-xl group hover:glow-cyan flex flex-col justify-between"
+          >
+            <div>
+              <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-4 border border-cyan-500/20 group-hover:scale-105 transition-transform">
+                <Search className="w-6 h-6" />
               </div>
+              <h3 className="font-bold text-white text-base group-hover:text-cyan-300 transition-colors">
+                Talent Market
+              </h3>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                Filter and browse peer freelancers by competency level, hourly rate, or endorsement records.
+              </p>
+            </div>
 
-              <div className="flex items-center justify-end">
-                <button
-                  type="submit"
-                  disabled={uploadLoading || !evidenceFile}
-                  className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold transition-all shadow-xs disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
-                >
-                  {uploadLoading ? (
-                    'Uploading to AWS Free Tier S3...'
-                  ) : (
-                    <>
-                      <UploadCloud className="w-4 h-4" />
-                      Upload Evidence Document
-                    </>
-                  )}
-                </button>
+            <div className="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-mono font-bold text-cyan-400">
+              <span>Browse Market</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </div>
+
+          {/* Task 4: Auto-Match */}
+          <div 
+            onClick={() => onNavigateTab('automatch')}
+            className="p-6 rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/60 transition-all cursor-pointer shadow-xl group hover:glow-amber flex flex-col justify-between"
+          >
+            <div>
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-4 border border-amber-500/20 group-hover:scale-105 transition-transform">
+                <Sparkles className="w-6 h-6" />
               </div>
-            </form>
+              <h3 className="font-bold text-white text-base group-hover:text-amber-300 transition-colors">
+                Auto-Match (F7)
+              </h3>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                Input project requirements to execute algorithmic candidate matching and relevance scoring.
+              </p>
+            </div>
 
-            {/* List of currently uploaded evidence */}
-            <div className="mt-6 pt-5 border-t border-slate-200">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
-                Uploaded Evidence Documents ({allEvidence.length})
-              </h4>
-
-              {allEvidence.length === 0 ? (
-                <p className="text-xs text-slate-400 italic">No evidence uploaded yet.</p>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {allEvidence.map(item => (
-                    <div
-                      key={item.id}
-                      className="p-3 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white transition-all flex items-start justify-between gap-2 shadow-2xs"
-                    >
-                      <div className="flex items-start gap-2.5 overflow-hidden">
-                        <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600 flex-shrink-0">
-                          <FileText className="w-4 h-4" />
-                        </div>
-                        <div className="overflow-hidden">
-                          <div className="text-xs font-bold text-slate-800 truncate" title={item.title}>
-                            {item.title}
-                          </div>
-                          <div className="text-[10px] text-slate-500 flex items-center gap-1.5 mt-0.5">
-                            <span className="font-semibold text-indigo-600">{item.skill_name}</span>
-                            <span>•</span>
-                            <span className={`px-1.5 py-0.2 rounded font-medium ${
-                              item.status === 'Verified' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                            }`}>
-                              {item.status}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-1">
-                        <a
-                          href={item.file_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-1 rounded text-slate-400 hover:text-indigo-600"
-                          title="View evidence"
-                        >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
-                        <button
-                          onClick={() => handleDeleteEvidence(item.id)}
-                          className="p-1 rounded text-slate-400 hover:text-rose-600"
-                          title="Delete evidence"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+            <div className="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-mono font-bold text-amber-400">
+              <span>Match Engine</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Modal: Add Skill (SRS F2: <= 3 clicks) */}
-      {showAddSkillModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
-              <h3 className="font-bold text-slate-900 text-base">Add New Skill to Profile</h3>
-              <button onClick={() => setShowAddSkillModal(false)} className="text-slate-400 hover:text-slate-600">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleAddSkill} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Skill Name</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Next.js, Docker, Python, Figma"
-                  value={newSkillName}
-                  onChange={(e) => setNewSkillName(e.target.value)}
-                  className="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 font-medium"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Category</label>
-                <select
-                  value={newSkillCategory}
-                  onChange={(e) => setNewSkillCategory(e.target.value)}
-                  className="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 font-medium"
-                >
-                  <option value="Web Development">Web Development</option>
-                  <option value="Cloud & DevOps">Cloud & DevOps</option>
-                  <option value="AI & Data Science">AI & Data Science</option>
-                  <option value="Mobile App Development">Mobile App Development</option>
-                  <option value="UI/UX Design">UI/UX Design</option>
-                  <option value="Cybersecurity & Backend">Cybersecurity & Backend</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Self-Reported Competency Level (SRS F2)</label>
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  {['Beginner', 'Intermediate', 'Advanced', 'Expert'].map(lvl => (
-                    <button
-                      type="button"
-                      key={lvl}
-                      onClick={() => setNewSkillLevel(lvl)}
-                      className={`py-2 px-3 rounded-xl border font-semibold text-center transition-all ${
-                        newSkillLevel === lvl
-                          ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-xs'
-                          : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                      }`}
-                    >
-                      {lvl}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pt-2 flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowAddSkillModal(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-300 text-slate-600 text-xs font-semibold hover:bg-slate-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm"
-                >
-                  Save Skill
-                </button>
-              </div>
-            </form>
+      {/* Concise Skills Summary (Minimalist Preview) */}
+      <div className="bg-slate-900/90 rounded-3xl border border-slate-800 p-6 shadow-xl">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+          <div>
+            <h3 className="text-sm font-bold text-white font-mono flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              Active Skills Summary
+            </h3>
+            <p className="text-xs text-slate-400">Recent competencies cataloged on your profile</p>
           </div>
-        </div>
-      )}
 
-      {/* Modal: Edit Profile */}
+          <button
+            onClick={() => onNavigateTab('skills')}
+            className="text-xs font-mono font-bold text-violet-400 hover:text-violet-300 flex items-center gap-1"
+          >
+            Manage All in Skills Hub <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-4">
+          {skills.slice(0, 4).map(skill => (
+            <div
+              key={skill.id}
+              onClick={() => setSelectedCredlySkill(skill)}
+              className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 hover:border-slate-700 transition-all cursor-pointer flex flex-col justify-between"
+            >
+              <div>
+                <span className="font-bold text-white text-xs block">{skill.skill_name}</span>
+                <span className="text-[10px] font-mono text-slate-500 block mb-2">{skill.category_name}</span>
+              </div>
+              <SkillBadge
+                status={skill.status}
+                score={skill.assessment_score}
+                endorsementCount={skill.endorsement_count}
+                level={skill.proficiency_level}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Credly Badge Modal */}
+      <CredlyBadgeModal
+        isOpen={Boolean(selectedCredlySkill)}
+        onClose={() => setSelectedCredlySkill(null)}
+        skill={selectedCredlySkill}
+        freelancer={user}
+      />
+
+      {/* Edit Profile Modal */}
       {showEditProfileModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
-              <h3 className="font-bold text-slate-900 text-base">Edit Freelancer Profile</h3>
-              <button onClick={() => setShowEditProfileModal(false)} className="text-slate-400 hover:text-slate-600">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+          <div className="bg-slate-900 rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-800 text-slate-100">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+              <h3 className="font-bold text-white text-base font-mono">Edit Freelancer Profile</h3>
+              <button onClick={() => setShowEditProfileModal(false)} className="text-slate-400 hover:text-white">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleUpdateProfile} className="space-y-4">
+            <form onSubmit={handleUpdateProfile} className="space-y-4 font-mono text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Full Name</label>
+                  <label className="block font-bold text-slate-300 mb-1">Full Name</label>
                   <input
                     type="text"
                     value={editFullName}
                     onChange={(e) => setEditFullName(e.target.value)}
-                    className="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 font-medium"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Professional Title</label>
+                  <label className="block font-bold text-slate-300 mb-1">Professional Title</label>
                   <input
                     type="text"
                     value={editTitle}
                     onChange={(e) => setEditTitle(e.target.value)}
-                    className="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 font-medium"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white"
                     required
                   />
                 </div>
@@ -697,32 +418,32 @@ export default function FreelancerDashboard({ onTakeAssessment, onViewPublicProf
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Location</label>
+                  <label className="block font-bold text-slate-300 mb-1">Location</label>
                   <input
                     type="text"
                     value={editLocation}
                     onChange={(e) => setEditLocation(e.target.value)}
-                    className="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 font-medium"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Hourly Rate ($USD)</label>
+                  <label className="block font-bold text-slate-300 mb-1">Hourly Rate ($USD)</label>
                   <input
                     type="number"
                     value={editHourlyRate}
                     onChange={(e) => setEditHourlyRate(e.target.value)}
-                    className="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 font-medium"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Bio</label>
+                <label className="block font-bold text-slate-300 mb-1">Bio</label>
                 <textarea
                   rows="3"
                   value={editBio}
                   onChange={(e) => setEditBio(e.target.value)}
-                  className="w-full text-xs rounded-xl border border-slate-300 p-3 font-medium"
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-white"
                 ></textarea>
               </div>
 
@@ -730,13 +451,13 @@ export default function FreelancerDashboard({ onTakeAssessment, onViewPublicProf
                 <button
                   type="button"
                   onClick={() => setShowEditProfileModal(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-300 text-slate-600 text-xs font-semibold hover:bg-slate-50"
+                  className="px-4 py-2 rounded-xl border border-slate-700 text-slate-400 hover:text-white"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm"
+                  className="px-5 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-bold shadow-md"
                 >
                   Save Changes
                 </button>

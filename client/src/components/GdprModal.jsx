@@ -57,84 +57,84 @@ export default function GdprModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-      <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-5">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-indigo-600" />
-            <h3 className="font-bold text-slate-900 text-base">GDPR Privacy & Data Center</h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-150">
+      <div className="bg-slate-900 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-800 space-y-5 text-slate-100 font-mono text-xs">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className="flex items-center gap-2.5">
+            <ShieldCheck className="w-5 h-5 text-violet-400" />
+            <h3 className="font-bold text-white text-base">GDPR Privacy & Data Center</h3>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+          <button onClick={onClose} className="text-slate-400 hover:text-white">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {statusMessage && (
-          <div className={`p-3 rounded-xl text-xs ${
-            statusMessage.type === 'success' ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'
+          <div className={`p-3.5 rounded-2xl ${
+            statusMessage.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
           }`}>
             {statusMessage.text}
           </div>
         )}
 
-        <div className="text-xs text-slate-600 space-y-1">
+        <div className="text-slate-400 font-sans leading-relaxed">
           <p>
             In compliance with <strong>GDPR Article 20 (Data Portability)</strong> and <strong>Article 17 (Right to be Forgotten)</strong>, you retain full ownership of your cataloged skills, verification records, and personal profile data.
           </p>
         </div>
 
         {/* Section 1: Export Data */}
-        <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
-          <h4 className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
-            <Download className="w-4 h-4 text-indigo-600" />
+        <div className="p-5 rounded-2xl border border-slate-800 bg-slate-950/80 space-y-2.5">
+          <h4 className="font-bold text-white flex items-center gap-2">
+            <Download className="w-4 h-4 text-violet-400" />
             Export My Data (JSON)
           </h4>
-          <p className="text-[11px] text-slate-500 leading-relaxed">
+          <p className="text-slate-400 font-sans text-[11px] leading-relaxed">
             Download a portable, machine-readable JSON archive containing all your skills, evidence records, endorsements received, assessment scores, and notification logs.
           </p>
           <button
             onClick={handleExportData}
             disabled={downloading}
-            className="mt-1 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors flex items-center gap-1.5 shadow-xs"
+            className="mt-1 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-bold transition-colors flex items-center gap-2 shadow-md"
           >
             <Download className="w-3.5 h-3.5" />
-            {downloading ? 'Preparing Export...' : 'Download My Data Archive'}
+            {downloading ? 'Preparing Archive...' : 'Download My Data Archive'}
           </button>
         </div>
 
         {/* Section 2: Delete Account */}
-        <div className="p-4 rounded-xl border border-rose-200 bg-rose-50/50 space-y-2">
-          <h4 className="font-bold text-xs text-rose-900 flex items-center gap-1.5">
-            <Trash2 className="w-4 h-4 text-rose-600" />
+        <div className="p-5 rounded-2xl border border-rose-500/30 bg-rose-500/5 space-y-2.5">
+          <h4 className="font-bold text-rose-300 flex items-center gap-2">
+            <Trash2 className="w-4 h-4 text-rose-400" />
             Delete Account & Permanent Purge
           </h4>
-          <p className="text-[11px] text-rose-700 leading-relaxed">
+          <p className="text-rose-300/80 font-sans text-[11px] leading-relaxed">
             Permanently delete your account and all associated skills, uploaded evidence files, and endorsement history. This operation is immediate and irreversible.
           </p>
 
           {!confirmDelete ? (
             <button
               onClick={() => setConfirmDelete(true)}
-              className="mt-1 px-4 py-2 rounded-xl border border-rose-300 bg-white text-rose-700 hover:bg-rose-50 text-xs font-bold transition-colors"
+              className="mt-1 px-4 py-2 rounded-xl border border-rose-500/40 bg-slate-900 text-rose-400 hover:bg-rose-500/20 font-bold transition-colors"
             >
               Request Account Deletion
             </button>
           ) : (
             <div className="pt-2 space-y-2">
-              <span className="text-[11px] font-bold text-rose-800 block">
+              <span className="text-[11px] font-bold text-rose-300 block">
                 Are you absolutely sure? All data will be purged immediately.
               </span>
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleDeleteAccount}
                   disabled={deleting}
-                  className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-colors shadow-xs"
+                  className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold transition-colors shadow-xs"
                 >
                   {deleting ? 'Purging records...' : 'Yes, Permanently Purge My Data'}
                 </button>
                 <button
                   onClick={() => setConfirmDelete(false)}
-                  className="px-3 py-2 rounded-xl border border-slate-300 text-slate-600 text-xs font-semibold hover:bg-white"
+                  className="px-3.5 py-2 rounded-xl border border-slate-700 text-slate-400 hover:text-white"
                 >
                   Cancel
                 </button>
@@ -146,7 +146,7 @@ export default function GdprModal({ isOpen, onClose }) {
         <div className="flex justify-end pt-2">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50"
+            className="px-5 py-2 rounded-xl border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800"
           >
             Close
           </button>

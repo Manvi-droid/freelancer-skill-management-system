@@ -133,7 +133,7 @@ test('FSMS Core Logic Test Suite (SRS 4.3 Maintainability)', async (t) => {
   });
 
   await t.test('F7: Project Auto-Matching algorithm ranks highest coverage first', () => {
-    const required = ['AWS Cloud Architecture', 'Docker & Containers'];
+    const required = ['Cloud & DevOps Architecture', 'Docker & Containers'];
     const candidates = db.prepare("SELECT id, full_name FROM users WHERE role = 'freelancer'").all();
     const skills = db.prepare('SELECT * FROM freelancer_skills').all();
 
@@ -147,7 +147,7 @@ test('FSMS Core Logic Test Suite (SRS 4.3 Maintainability)', async (t) => {
     });
 
     ranked.sort((a, b) => b.matchScore - a.matchScore);
-    // Alex Rivera has both AWS and Docker, should be ranked #1
+    // Alex Rivera has both Cloud and Docker, should be ranked #1
     assert.equal(ranked[0].full_name, 'Alex Rivera');
     assert.equal(ranked[0].matchScore, 100);
   });
