@@ -24,6 +24,7 @@ ENV NODE_ENV=production
 ENV PORT=5000
 
 # Install production dependencies only
+RUN apk add --no-cache python3 make g++
 COPY package*.json ./
 RUN npm ci --only=production
 
