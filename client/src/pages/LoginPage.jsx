@@ -3,32 +3,26 @@ import { useAuth } from '../context/AuthContext';
 import { 
   UserCheck, 
   Briefcase, 
-  ArrowRight, 
   ShieldCheck, 
-  Award, 
   Sparkles, 
   Lock, 
   Mail, 
-  Check, 
   Layers, 
-  TrendingUp,
-  Building2,
-  ChevronRight,
-  ExternalLink
+  ChevronRight
 } from 'lucide-react';
 
 export default function LoginPage() {
-  const { login, register, switchDemoRole } = useAuth();
+  const { login, register } = useAuth();
   
   // Selected portal on mobile / focus tab
   const [activePortalTab, setActivePortalTab] = useState('freelancer'); // 'freelancer' | 'client'
   
-  // Custom login forms state
-  const [freelancerEmail, setFreelancerEmail] = useState('riya.kapoor@example.com');
-  const [freelancerPassword, setFreelancerPassword] = useState('Password123!');
+  // Login form state (empty by default, placeholders show default credentials)
+  const [freelancerEmail, setFreelancerEmail] = useState('');
+  const [freelancerPassword, setFreelancerPassword] = useState('');
   
-  const [clientEmail, setClientEmail] = useState('recruiting@apexventures.io');
-  const [clientPassword, setClientPassword] = useState('Password123!');
+  const [clientEmail, setClientEmail] = useState('');
+  const [clientPassword, setClientPassword] = useState('');
   
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [regFullName, setRegFullName] = useState('');
@@ -39,24 +33,15 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
-  const handle1ClickLogin = async (roleName) => {
-    setLoading(true);
-    setErrorMsg(null);
-    try {
-      await switchDemoRole(roleName);
-    } catch (err) {
-      setErrorMsg(err.message || 'Login failed');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleFreelancerSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErrorMsg(null);
     try {
-      await login(freelancerEmail, freelancerPassword);
+      // Use entered credentials, or fallback to default placeholder credentials if submitted directly
+      const emailToUse = (freelancerEmail.trim()) || 'riya.kapoor@example.com';
+      const passToUse = freelancerPassword || 'Password123!';
+      await login(emailToUse, passToUse);
     } catch (err) {
       setErrorMsg(err.message || 'Invalid freelancer credentials');
     } finally {
@@ -69,7 +54,10 @@ export default function LoginPage() {
     setLoading(true);
     setErrorMsg(null);
     try {
-      await login(clientEmail, clientPassword);
+      // Use entered credentials, or fallback to default placeholder credentials if submitted directly
+      const emailToUse = (clientEmail.trim()) || 'recruiting@apexventures.io';
+      const passToUse = clientPassword || 'Password123!';
+      await login(emailToUse, passToUse);
     } catch (err) {
       setErrorMsg(err.message || 'Invalid provider credentials');
     } finally {
@@ -128,7 +116,7 @@ export default function LoginPage() {
       </header>
 
       {/* Main Content Area: 2 Separate Login Portals */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-10 flex flex-col justify-center">
+      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-10 flex flex-col justify-center">
         
         {/* Page Title */}
         <div className="text-center max-w-2xl mx-auto mb-10">
@@ -176,77 +164,54 @@ export default function LoginPage() {
                   Catalog technical competencies, take timed skill evaluations, boost your credibility rank, and apply to client contracts.
                 </p>
 
-                {/* 1-Click Instant Demo Login Options */}
-                <div className="space-y-2.5 mb-6">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block">
-                    Fast 1-Click Access (Evaluation Mode):
-                  </span>
-
-                  <button
-                    type="button"
-                    onClick={() => handle1ClickLogin('freelancer')}
-                    disabled={loading}
-                    className="w-full p-3 rounded-xl border border-gray-200 hover:border-blue-400 bg-gray-50/60 hover:bg-blue-50/50 flex items-center justify-between text-left transition-all group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <img
-                        src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80"
-                        alt="Riya"
-                        className="w-9 h-9 rounded-xl object-cover border border-gray-200"
-                      />
-                      <div>
-                        <div className="text-xs font-bold text-gray-900 group-hover:text-blue-600">
-                          Riya Kapoor (Lead Full Stack)
-                        </div>
-                        <div className="text-[11px] text-gray-500">
-                          Credibility: 7.4/10 · 4 Certified Skills
-                        </div>
-                      </div>
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all" />
-                  </button>
-                </div>
-
                 {/* Password Login Form */}
-                <form onSubmit={handleFreelancerSubmit} className="space-y-3 pt-4 border-t border-gray-100 text-xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block mb-1">
-                    Or Sign In with Credentials:
-                  </span>
-
+                <form onSubmit={handleFreelancerSubmit} className="space-y-4 text-xs">
                   <div>
-                    <input
-                      type="email"
-                      value={freelancerEmail}
-                      onChange={e => setFreelancerEmail(e.target.value)}
-                      placeholder="freelancer@example.com"
-                      className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
-                      required
-                    />
+                    <label className="block text-gray-700 font-semibold mb-1.5 flex items-center justify-between">
+                      <span>Email / Username</span>
+                      <span className="text-[10px] text-gray-400 font-normal">Default: riya.kapoor@example.com</span>
+                    </label>
+                    <div className="relative">
+                      <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="email"
+                        value={freelancerEmail}
+                        onChange={e => setFreelancerEmail(e.target.value)}
+                        placeholder="riya.kapoor@example.com"
+                        className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
+                      />
+                    </div>
                   </div>
 
                   <div>
-                    <input
-                      type="password"
-                      value={freelancerPassword}
-                      onChange={e => setFreelancerPassword(e.target.value)}
-                      placeholder="Password"
-                      className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
-                      required
-                    />
+                    <label className="block text-gray-700 font-semibold mb-1.5 flex items-center justify-between">
+                      <span>Password</span>
+                      <span className="text-[10px] text-gray-400 font-normal">Default: Password123!</span>
+                    </label>
+                    <div className="relative">
+                      <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="password"
+                        value={freelancerPassword}
+                        onChange={e => setFreelancerPassword(e.target.value)}
+                        placeholder="Password123!"
+                        className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
+                      />
+                    </div>
                   </div>
 
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition-all shadow-xs flex items-center justify-center gap-1.5"
+                    className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition-all shadow-xs flex items-center justify-center gap-1.5 mt-2 cursor-pointer"
                   >
-                    {loading ? 'Authenticating...' : 'Enter Freelancer Dashboard'} <ChevronRight className="w-3.5 h-3.5" />
+                    {loading ? 'Authenticating...' : 'Enter Freelancer Dashboard'} <ChevronRight className="w-4 h-4" />
                   </button>
                 </form>
               </div>
 
-              <div className="mt-6 pt-3 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-400">
-                <span>Features: Skills Vault, HackerRank Tests, Job Applications</span>
+              <div className="mt-8 pt-4 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-400">
+                <span>Features: Skills Vault, Assessments Arena, Job Applications</span>
               </div>
             </div>
 
@@ -272,76 +237,53 @@ export default function LoginPage() {
                   Publish project tasks, define required verified competency levels, evaluate applicant match scores, and award contracts.
                 </p>
 
-                {/* 1-Click Instant Demo Login Options */}
-                <div className="space-y-2.5 mb-6">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block">
-                    Fast 1-Click Access (Evaluation Mode):
-                  </span>
-
-                  <button
-                    type="button"
-                    onClick={() => handle1ClickLogin('client')}
-                    disabled={loading}
-                    className="w-full p-3 rounded-xl border border-gray-200 hover:border-indigo-400 bg-gray-50/60 hover:bg-indigo-50/50 flex items-center justify-between text-left transition-all group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <img
-                        src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80"
-                        alt="Apex"
-                        className="w-9 h-9 rounded-xl object-cover border border-gray-200"
-                      />
-                      <div>
-                        <div className="text-xs font-bold text-gray-900 group-hover:text-indigo-600">
-                          Apex Tech Ventures (Hiring Client)
-                        </div>
-                        <div className="text-[11px] text-gray-500">
-                          Tech Incubator · 4 Active Jobs Posted
-                        </div>
-                      </div>
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-indigo-600 group-hover:translate-x-0.5 transition-all" />
-                  </button>
-                </div>
-
                 {/* Password Login Form */}
-                <form onSubmit={handleClientSubmit} className="space-y-3 pt-4 border-t border-gray-100 text-xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block mb-1">
-                    Or Sign In with Credentials:
-                  </span>
-
+                <form onSubmit={handleClientSubmit} className="space-y-4 text-xs">
                   <div>
-                    <input
-                      type="email"
-                      value={clientEmail}
-                      onChange={e => setClientEmail(e.target.value)}
-                      placeholder="client@example.com"
-                      className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
-                      required
-                    />
+                    <label className="block text-gray-700 font-semibold mb-1.5 flex items-center justify-between">
+                      <span>Email / Username</span>
+                      <span className="text-[10px] text-gray-400 font-normal">Default: recruiting@apexventures.io</span>
+                    </label>
+                    <div className="relative">
+                      <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="email"
+                        value={clientEmail}
+                        onChange={e => setClientEmail(e.target.value)}
+                        placeholder="recruiting@apexventures.io"
+                        className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                      />
+                    </div>
                   </div>
 
                   <div>
-                    <input
-                      type="password"
-                      value={clientPassword}
-                      onChange={e => setClientPassword(e.target.value)}
-                      placeholder="Password"
-                      className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
-                      required
-                    />
+                    <label className="block text-gray-700 font-semibold mb-1.5 flex items-center justify-between">
+                      <span>Password</span>
+                      <span className="text-[10px] text-gray-400 font-normal">Default: Password123!</span>
+                    </label>
+                    <div className="relative">
+                      <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="password"
+                        value={clientPassword}
+                        onChange={e => setClientPassword(e.target.value)}
+                        placeholder="Password123!"
+                        className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                      />
+                    </div>
                   </div>
 
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs transition-all shadow-xs flex items-center justify-center gap-1.5"
+                    className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs transition-all shadow-xs flex items-center justify-center gap-1.5 mt-2 cursor-pointer"
                   >
-                    {loading ? 'Authenticating...' : 'Enter Provider Hub'} <ChevronRight className="w-3.5 h-3.5" />
+                    {loading ? 'Authenticating...' : 'Enter Provider Hub'} <ChevronRight className="w-4 h-4" />
                   </button>
                 </form>
               </div>
 
-              <div className="mt-6 pt-3 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-400">
+              <div className="mt-8 pt-4 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-400">
                 <span>Features: Post Tasks, Review Proposals, Accept/Hire, Auto-Match</span>
               </div>
             </div>
