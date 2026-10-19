@@ -145,11 +145,15 @@ router.post('/demo-switch', (req, res) => {
   } else if (role === 'client') {
     user = db.prepare("SELECT * FROM users WHERE id = 'usr-client1'").get();
   } else if (role === 'admin') {
+    const { password } = req.body;
     user = db.prepare("SELECT * FROM users WHERE id = 'usr-admin'").get();
+    if (!user || !password || !bcrypt.compareSync(password, user.password_hash)) {
+      return res.status(401).json({ error: 'Admin portal access requires valid administrator authentication (Admin password required).' });
+    }
   }
 
   if (!user) {
-    return res.status(404).json({ error: 'Demo user not found.' });
+    return res.status(404).json({ error: 'User not found.' });
   }
 
   const token = jwt.sign(

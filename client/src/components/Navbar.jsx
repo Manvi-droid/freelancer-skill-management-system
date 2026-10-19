@@ -18,14 +18,17 @@ import {
   Briefcase,
   ArrowRightLeft,
   Plus,
-  LogOut
+  LogOut,
+  Megaphone,
+  Lock
 } from 'lucide-react';
 
 export default function Navbar({ 
   activeTab, 
   setActiveTab, 
   onOpenGdpr,
-  onOpenLoginModal
+  onOpenLoginModal,
+  onOpenAdminAuth
 }) {
   const { user, token, switchDemoRole, logout, unreadNotifications, setUnreadNotifications } = useAuth();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -61,22 +64,27 @@ export default function Navbar({
   };
 
   const isClient = user?.role === 'client';
+  const isAdmin = user?.role === 'admin';
 
-  // Dynamic Navigation Rail Items based on active portal
+  // Navigation items strictly separated by role
   const sideNavItems = isClient ? [
-    { id: 'provider-dashboard', label: 'Provider Hub', icon: Briefcase },
-    { id: 'jobs', label: 'Task Board', icon: Layers },
-    { id: 'search', label: 'Talent Market', icon: Users },
-    { id: 'automatch', label: 'Auto-Match', icon: Sparkles },
-    ...(user?.role === 'admin' ? [{ id: 'admin', label: 'Admin Desk', icon: ShieldAlert }] : []),
+    { id: 'provider-dashboard', label: 'My Tasks', icon: Briefcase },
+    { id: 'announce-task', label: 'Announce Task', icon: Megaphone },
+    { id: 'workforce', label: 'Workforce', icon: Users },
+    { id: 'automatch', label: 'Smart Match', icon: Sparkles },
+    ...(isAdmin ? [{ id: 'admin', label: 'Admin Desk', icon: ShieldAlert }] : []),
+  ] : isAdmin ? [
+    { id: 'admin', label: 'Admin Desk', icon: ShieldAlert },
+    { id: 'workforce', label: 'Workforce', icon: Users },
+    { id: 'provider-dashboard', label: 'Client Hub', icon: Briefcase },
+    { id: 'dashboard', label: 'Freelancer', icon: LayoutDashboard },
   ] : [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'jobs', label: 'Jobs & Tasks', icon: Briefcase },
+    { id: 'jobs', label: 'Available Tasks', icon: Briefcase },
     { id: 'skills', label: 'Skills Vault', icon: Layers },
     { id: 'assessments', label: 'Assessments', icon: Award },
-    { id: 'search', label: 'Talent Market', icon: Users },
+    { id: 'workforce', label: 'Talent Market', icon: Users },
     { id: 'automatch', label: 'Auto-Match', icon: Sparkles },
-    ...(user?.role === 'admin' ? [{ id: 'admin', label: 'Admin Desk', icon: ShieldAlert }] : []),
   ];
 
   const credibilityScore = user ? ((user.rating || 4.5) * 1.5).toFixed(1) : '7.4';
@@ -84,17 +92,17 @@ export default function Navbar({
   return (
     <>
       {/* ============================================================ */}
-      {/* 1. SLEEK LEFT NAVIGATION RAIL (Original FSMS Identity)        */}
+      {/* 1. SLEEK LEFT NAVIGATION RAIL                                 */}
       {/* ============================================================ */}
       <aside className="fixed inset-y-0 left-0 w-20 bg-white border-r border-gray-200 z-30 flex flex-col items-center pt-3 pb-4">
-        {/* FSMS Brand Logo Icon */}
+        {/* Brand Icon */}
         <button
-          onClick={() => setActiveTab(isClient ? 'provider-dashboard' : 'dashboard')}
+          onClick={() => setActiveTab(isAdmin ? 'admin' : isClient ? 'provider-dashboard' : 'dashboard')}
           className="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md hover:scale-105 transition-all mb-4 group"
           title="FSMS Dashboard"
         >
           <div className="relative flex items-center justify-center">
-            {isClient ? <Briefcase className="w-6 h-6 text-white" /> : <Layers className="w-6 h-6 text-white" />}
+            {isAdmin ? <ShieldAlert className="w-6 h-6 text-white" /> : isClient ? <Briefcase className="w-6 h-6 text-white" /> : <Layers className="w-6 h-6 text-white" />}
             <span className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-emerald-400 border-2 border-white rounded-full"></span>
           </div>
         </button>
@@ -111,12 +119,12 @@ export default function Navbar({
                 title={item.label}
                 className={`w-full flex flex-col items-center justify-center py-2.5 px-1 rounded-xl transition-all group ${
                   isActive
-                    ? isClient ? 'bg-indigo-50 text-indigo-600 font-semibold shadow-xs' : 'bg-blue-50 text-blue-600 font-semibold shadow-xs'
+                    ? isAdmin ? 'bg-purple-50 text-purple-700 font-semibold shadow-xs' : isClient ? 'bg-indigo-50 text-indigo-600 font-semibold shadow-xs' : 'bg-blue-50 text-blue-600 font-semibold shadow-xs'
                     : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
                 }`}
               >
                 <Icon className={`w-5 h-5 mb-1 transition-transform group-hover:scale-110 ${
-                  isActive ? (isClient ? 'text-indigo-600' : 'text-blue-600') : 'text-gray-500'
+                  isActive ? (isAdmin ? 'text-purple-700' : isClient ? 'text-indigo-600' : 'text-blue-600') : 'text-gray-500'
                 }`} />
                 <span className="text-[10px] leading-tight text-center tracking-tight font-medium">
                   {item.label}
@@ -149,17 +157,19 @@ export default function Navbar({
       <header className="fixed top-0 left-20 right-0 h-14 bg-white/95 backdrop-blur-md border-b border-gray-200 z-20 flex items-center px-6 gap-4">
         {/* Brand Name & App Descriptor */}
         <div 
-          onClick={() => setActiveTab(isClient ? 'provider-dashboard' : 'dashboard')}
+          onClick={() => setActiveTab(isAdmin ? 'admin' : isClient ? 'provider-dashboard' : 'dashboard')}
           className="flex items-center gap-2 cursor-pointer flex-shrink-0"
         >
           <span className="text-lg font-black text-gray-900 tracking-tight flex items-center gap-1.5">
             FSMS
             <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full border ${
-              isClient 
+              isAdmin
+                ? 'bg-purple-50 text-purple-700 border-purple-200'
+                : isClient 
                 ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
                 : 'bg-blue-50 text-blue-700 border-blue-200'
             }`}>
-              {isClient ? 'Task Provider' : 'Freelancer'}
+              {isAdmin ? 'System Admin' : isClient ? 'Task Provider' : 'Freelancer'}
             </span>
           </span>
           <span className="text-xs text-gray-400 hidden md:inline">| Skill Management System</span>
@@ -171,12 +181,12 @@ export default function Navbar({
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              placeholder={isClient ? "Search talent, skills, or candidate applications..." : "Search jobs, skills, or assessments..."}
+              placeholder={isClient ? "Search available workforce by skills, rating, or rate..." : "Search tasks, skills, or assessments..."}
               value={searchQuery}
               onChange={e => { setSearchQuery(e.target.value); }}
               onKeyDown={e => {
                 if (e.key === 'Enter') {
-                  setActiveTab(isClient ? 'search' : 'jobs');
+                  setActiveTab(isClient ? 'workforce' : 'jobs');
                 }
               }}
               className="w-full pl-9 pr-4 py-1.5 rounded-full border border-gray-200 bg-gray-50 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
@@ -184,7 +194,7 @@ export default function Navbar({
           </div>
         </div>
 
-        {/* Right Side Status Metrics & 2-Way Login Portal Switcher */}
+        {/* Right Side Status Metrics & Portal Switchers */}
         <div className="flex items-center gap-2.5 ml-auto flex-shrink-0">
           
           {/* Prominent 2-Way Portal Switcher Button */}
@@ -199,11 +209,11 @@ export default function Navbar({
           >
             <ArrowRightLeft className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Portal:</span>
-            <span>{isClient ? 'Provider Hub' : 'Freelancer'}</span>
+            <span>{isClient ? 'Task Provider' : 'Freelancer'}</span>
           </button>
 
           {/* Skill Credibility Score Widget (for Freelancers) */}
-          {!isClient && (
+          {!isClient && !isAdmin && (
             <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-xs">
               <TrendingUp className="w-3.5 h-3.5 text-blue-600" />
               <span className="text-gray-600 font-medium">Credibility:</span>
@@ -212,7 +222,7 @@ export default function Navbar({
           )}
 
           {/* Rate Widget */}
-          {!isClient && user?.hourly_rate && (
+          {!isClient && !isAdmin && user?.hourly_rate && (
             <div className="hidden lg:flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-xs text-emerald-700 font-semibold">
               <span>${user.hourly_rate}/hr</span>
             </div>
@@ -224,7 +234,7 @@ export default function Navbar({
               onClick={() => setPersonaMenuOpen(!personaMenuOpen)}
               className="px-3 py-1.5 rounded-full border border-gray-200 bg-white text-xs font-medium text-gray-700 hover:border-gray-300 transition-colors flex items-center gap-1.5 shadow-2xs"
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span className={`w-2 h-2 rounded-full ${isAdmin ? 'bg-purple-500' : 'bg-emerald-500'}`}></span>
               <span className="capitalize">{user?.role || 'freelancer'}</span>
               <ChevronDown className="w-3 h-3 text-gray-400" />
             </button>
@@ -232,16 +242,16 @@ export default function Navbar({
             {personaMenuOpen && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setPersonaMenuOpen(false)} />
-                <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white border border-gray-200 shadow-xl py-2 z-50 text-xs animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-white border border-gray-200 shadow-xl py-2 z-50 text-xs animate-in fade-in zoom-in-95 duration-100">
                   <div className="px-3 pb-2 border-b border-gray-100 mb-1">
                     <p className="font-bold text-gray-900 text-xs">{user?.full_name}</p>
                     <p className="text-[11px] text-gray-500">{user?.title}</p>
                   </div>
+                  
                   <div className="px-3 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Switch Active Role</div>
                   {[
-                    { role: 'freelancer', label: 'Freelancer (Riya)', desc: 'Improve ranks, browse jobs, apply' },
-                    { role: 'client', label: 'Job Provider (Apex Tech)', desc: 'Post tasks, review proposals, hire' },
-                    { role: 'admin', label: 'System Admin', desc: 'Moderation queue & audit log' },
+                    { role: 'freelancer', label: 'Freelancer', desc: 'Improve ranks, check tasks, apply' },
+                    { role: 'client', label: 'Task Provider (Client)', desc: 'Announce tasks, view workforce, hire' },
                   ].map(opt => (
                     <button
                       key={opt.role}
@@ -261,6 +271,35 @@ export default function Navbar({
                       {user?.role === opt.role && <Check className="w-4 h-4 text-blue-600" />}
                     </button>
                   ))}
+
+                  {/* Authenticated Admin Access */}
+                  <div className="border-t border-gray-100 mt-1 pt-1 px-1">
+                    <button
+                      onClick={() => {
+                        setPersonaMenuOpen(false);
+                        if (isAdmin) {
+                          setActiveTab('admin');
+                        } else {
+                          onOpenAdminAuth();
+                        }
+                      }}
+                      className={`w-full text-left px-2.5 py-2 flex items-center justify-between rounded-xl transition-colors ${
+                        isAdmin ? 'bg-purple-50 text-purple-700 font-bold' : 'hover:bg-purple-50/70 text-purple-700'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <ShieldAlert className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                        <div>
+                          <div className="font-semibold text-xs">Admin Console</div>
+                          <div className="text-[10px] text-purple-400 font-normal">
+                            {isAdmin ? 'Active Session' : 'Requires Master Password'}
+                          </div>
+                        </div>
+                      </div>
+                      {!isAdmin && <Lock className="w-3.5 h-3.5 text-purple-400" />}
+                    </button>
+                  </div>
+
                   <div className="border-t border-gray-100 mt-1 pt-1 space-y-0.5">
                     <button
                       onClick={() => { onOpenGdpr(); setPersonaMenuOpen(false); }}

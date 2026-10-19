@@ -10,10 +10,12 @@ import PublicFreelancerProfile from './pages/PublicFreelancerProfile';
 import AdminDashboard from './pages/AdminDashboard';
 import FreelancerJobsMarket from './pages/FreelancerJobsMarket';
 import ClientProviderDashboard from './pages/ClientProviderDashboard';
+import AnnounceTask from './pages/AnnounceTask';
 import GdprModal from './components/GdprModal';
 import LoginPortalModal from './components/LoginPortalModal';
-
+import AdminAuthModal from './components/AdminAuthModal';
 import LoginPage from './pages/LoginPage';
+import { ShieldAlert, Lock, KeyRound } from 'lucide-react';
 
 function MainApp() {
   const { user, loading } = useAuth();
@@ -21,12 +23,13 @@ function MainApp() {
   const [selectedFreelancerId, setSelectedFreelancerId] = useState(null);
   const [isGdprOpen, setIsGdprOpen] = useState(false);
   const [isLoginPortalOpen, setIsLoginPortalOpen] = useState(false);
+  const [isAdminAuthOpen, setIsAdminAuthOpen] = useState(false);
 
   // Sync active dashboard when role changes
   useEffect(() => {
-    if (user?.role === 'client' && (activeTab === 'dashboard' || activeTab === 'skills' || activeTab === 'assessments')) {
+    if (user?.role === 'client' && (activeTab === 'dashboard' || activeTab === 'skills' || activeTab === 'assessments' || activeTab === 'jobs')) {
       setActiveTab('provider-dashboard');
-    } else if (user?.role === 'freelancer' && activeTab === 'provider-dashboard') {
+    } else if (user?.role === 'freelancer' && (activeTab === 'provider-dashboard' || activeTab === 'announce-task')) {
       setActiveTab('dashboard');
     }
   }, [user?.role]);
@@ -54,6 +57,10 @@ function MainApp() {
 
   const handleSetActiveTab = (tab) => {
     setSelectedFreelancerId(null);
+    if (tab === 'admin' && user?.role !== 'admin') {
+      setIsAdminAuthOpen(true);
+      return;
+    }
     setActiveTab(tab);
   };
 
@@ -66,6 +73,7 @@ function MainApp() {
         setActiveTab={handleSetActiveTab}
         onOpenGdpr={() => setIsGdprOpen(true)}
         onOpenLoginModal={() => setIsLoginPortalOpen(true)}
+        onOpenAdminAuth={() => setIsAdminAuthOpen(true)}
       />
 
       {/* Main content area: offset for left sidebar (80px) + top bar (56px) */}
@@ -80,15 +88,28 @@ function MainApp() {
             />
           )}
 
-          {/* Job/Task Provider (Client) Specific Dashboard */}
+          {/* Job/Task Provider: My Tasks & Related Activity */}
           {activeTab === 'provider-dashboard' && (
             <ClientProviderDashboard
               onNavigateToAutoMatch={() => handleSetActiveTab('automatch')}
-              onNavigateToSearch={() => handleSetActiveTab('search')}
+              onNavigateToSearch={() => handleSetActiveTab('workforce')}
             />
           )}
 
-          {/* Freelancer Jobs Marketplace & Proposal Tracker */}
+          {/* Job/Task Provider: Announce a Task */}
+          {activeTab === 'announce-task' && (
+            <AnnounceTask
+              onTaskAnnounced={() => handleSetActiveTab('provider-dashboard')}
+              onNavigateToAutoMatch={() => handleSetActiveTab('automatch')}
+            />
+          )}
+
+          {/* Available Workforce & Talent Directory (For Clients & Freelancers) */}
+          {(activeTab === 'workforce' || activeTab === 'search') && (
+            <SearchFreelancers onViewFreelancer={handleViewFreelancer} />
+          )}
+
+          {/* Freelancer Only: Available Tasks Marketplace & Proposal Submission */}
           {activeTab === 'jobs' && (
             <FreelancerJobsMarket
               onNavigateToAssessments={() => handleSetActiveTab('assessments')}
@@ -100,11 +121,6 @@ function MainApp() {
             <SkillsEvidenceHub
               onTakeAssessment={() => handleSetActiveTab('assessments')}
             />
-          )}
-
-          {/* Talent Directory (Contra / Toptal style) */}
-          {activeTab === 'search' && (
-            <SearchFreelancers onViewFreelancer={handleViewFreelancer} />
           )}
 
           {/* Algorithmic Project Auto-Match (SRS F7) */}
@@ -121,13 +137,32 @@ function MainApp() {
           {activeTab === 'profile' && (
             <PublicFreelancerProfile
               freelancerId={selectedFreelancerId || user?.id || 'usr-riya'}
-              onBack={() => handleSetActiveTab(user?.role === 'client' ? 'search' : 'jobs')}
+              onBack={() => handleSetActiveTab(user?.role === 'client' ? 'workforce' : 'jobs')}
             />
           )}
 
-          {/* Admin Moderation Desk */}
+          {/* Admin Moderation Desk - Strictly Authenticated */}
           {activeTab === 'admin' && (
-            <AdminDashboard />
+            user?.role === 'admin' ? (
+              <AdminDashboard />
+            ) : (
+              <div className="max-w-md mx-auto my-20 p-8 bg-white rounded-3xl border border-gray-200 shadow-sm text-center">
+                <div className="w-14 h-14 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center mx-auto mb-4 border border-purple-200">
+                  <Lock className="w-7 h-7" />
+                </div>
+                <h2 className="text-lg font-bold text-gray-900 mb-1">Administrative Authentication Required</h2>
+                <p className="text-xs text-gray-500 mb-5 leading-relaxed">
+                  This console is restricted to platform compliance leads and administrators. Please authenticate with your master administrator credentials.
+                </p>
+                <button
+                  onClick={() => setIsAdminAuthOpen(true)}
+                  className="w-full py-2.5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-semibold text-xs transition-colors shadow-xs flex items-center justify-center gap-2"
+                >
+                  <KeyRound className="w-4 h-4" />
+                  Authenticate as Administrator
+                </button>
+              </div>
+            )
           )}
         </main>
 
@@ -163,6 +198,13 @@ function MainApp() {
       <LoginPortalModal 
         isOpen={isLoginPortalOpen} 
         onClose={() => setIsLoginPortalOpen(false)} 
+      />
+
+      {/* Secure Admin Authentication Gate Modal */}
+      <AdminAuthModal
+        isOpen={isAdminAuthOpen}
+        onClose={() => setIsAdminAuthOpen(false)}
+        onSuccess={() => setActiveTab('admin')}
       />
     </div>
   );
