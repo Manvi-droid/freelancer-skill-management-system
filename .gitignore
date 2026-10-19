@@ -1,2 +1,9 @@
 node_modules
 .env
+fsms/
+dist/
+client/dist/
+uploads/
+data/*.db-shm
+data/*.db-wal
+data/*.db

@@ -735,5 +735,177 @@ export function seedDatabase() {
     insertAudit.run(a.id, a.adminId, a.adminName, a.action, a.targetType, a.targetId, a.details);
   }
 
+  // 11. Insert Sample Jobs/Tasks (SRS F7 & Job Provider Portal)
+  const sampleJobs = [
+    {
+      id: 'job-1',
+      clientId: 'usr-client1',
+      title: 'Full-Stack Microservices Architecture & Cloud Migration',
+      description: 'Looking for an experienced engineer to architect resilient microservices, configure container deployments, and integrate frontend monitoring dashboards.',
+      category: 'Cloud & DevOps',
+      budgetType: 'hourly',
+      budget: 85.0,
+      skills: JSON.stringify([
+        { skill_name: 'Cloud & DevOps Architecture', proficiency_level: 'Advanced' },
+        { skill_name: 'React', proficiency_level: 'Intermediate' },
+        { skill_name: 'Docker & Containers', proficiency_level: 'Intermediate' }
+      ]),
+    },
+    {
+      id: 'job-2',
+      clientId: 'usr-client1',
+      title: 'High-Performance Analytics Dashboard in React & TypeScript',
+      description: 'Design and implement sub-second streaming metrics visualization dashboard with accessible components and state management.',
+      category: 'Web Development',
+      budgetType: 'hourly',
+      budget: 75.0,
+      skills: JSON.stringify([
+        { skill_name: 'React', proficiency_level: 'Expert' },
+        { skill_name: 'TypeScript', proficiency_level: 'Advanced' }
+      ]),
+    },
+    {
+      id: 'job-3',
+      clientId: 'usr-client1',
+      title: 'Predictive Recommendation Engine & Data Pipeline',
+      description: 'Build automated feature extraction and inference endpoint with scikit-learn and high-throughput Python API.',
+      category: 'AI & Data Science',
+      budgetType: 'fixed',
+      budget: 3500.0,
+      skills: JSON.stringify([
+        { skill_name: 'Python', proficiency_level: 'Advanced' },
+        { skill_name: 'Machine Learning', proficiency_level: 'Intermediate' }
+      ]),
+    },
+    {
+      id: 'job-4',
+      clientId: 'usr-client1',
+      title: 'Mobile Client App for Cross-Platform Logistics',
+      description: 'Build responsive cross-platform mobile client with offline-first local storage and real-time order tracking.',
+      category: 'Mobile App Development',
+      budgetType: 'hourly',
+      budget: 70.0,
+      skills: JSON.stringify([
+        { skill_name: 'Flutter', proficiency_level: 'Advanced' }
+      ]),
+    },
+  ];
+
+  const insertJob = db.prepare(`
+    INSERT OR IGNORE INTO jobs (id, client_id, title, description, category_name, budget_type, budget_amount, required_skills_json, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'open')
+  `);
+
+  for (const j of sampleJobs) {
+    insertJob.run(j.id, j.clientId, j.title, j.description, j.category, j.budgetType, j.budget, j.skills);
+  }
+
+  // 12. Insert Sample Job Application
+  const insertApp = db.prepare(`
+    INSERT OR IGNORE INTO job_applications (id, job_id, freelancer_id, cover_note, proposed_rate, status, match_score)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  insertApp.run(
+    'app-sample-1',
+    'job-2',
+    'usr-riya',
+    'I have 5+ years building production React & TypeScript dashboards with high test coverage and verified Credly badges.',
+    75.0,
+    'applied',
+    95.0
+  );
+
   console.log('✅ Database seeded successfully with realistic data!');
+}
+
+// Ensure jobs exist even if DB was already populated previously
+export function seedJobsIfEmpty() {
+  try {
+    const jobCount = db.prepare('SELECT COUNT(*) as count FROM jobs').get()?.count || 0;
+    if (jobCount === 0) {
+      console.log('🌱 Populating initial jobs and tasks...');
+      const sampleJobs = [
+        {
+          id: 'job-1',
+          clientId: 'usr-client1',
+          title: 'Full-Stack Microservices Architecture & Cloud Migration',
+          description: 'Looking for an experienced engineer to architect resilient microservices, configure container deployments, and integrate frontend monitoring dashboards.',
+          category: 'Cloud & DevOps',
+          budgetType: 'hourly',
+          budget: 85.0,
+          skills: JSON.stringify([
+            { skill_name: 'Cloud & DevOps Architecture', proficiency_level: 'Advanced' },
+            { skill_name: 'React', proficiency_level: 'Intermediate' },
+            { skill_name: 'Docker & Containers', proficiency_level: 'Intermediate' }
+          ]),
+        },
+        {
+          id: 'job-2',
+          clientId: 'usr-client1',
+          title: 'High-Performance Analytics Dashboard in React & TypeScript',
+          description: 'Design and implement sub-second streaming metrics visualization dashboard with accessible components and state management.',
+          category: 'Web Development',
+          budgetType: 'hourly',
+          budget: 75.0,
+          skills: JSON.stringify([
+            { skill_name: 'React', proficiency_level: 'Expert' },
+            { skill_name: 'TypeScript', proficiency_level: 'Advanced' }
+          ]),
+        },
+        {
+          id: 'job-3',
+          clientId: 'usr-client1',
+          title: 'Predictive Recommendation Engine & Data Pipeline',
+          description: 'Build automated feature extraction and inference endpoint with scikit-learn and high-throughput Python API.',
+          category: 'AI & Data Science',
+          budgetType: 'fixed',
+          budget: 3500.0,
+          skills: JSON.stringify([
+            { skill_name: 'Python', proficiency_level: 'Advanced' },
+            { skill_name: 'Machine Learning', proficiency_level: 'Intermediate' }
+          ]),
+        },
+        {
+          id: 'job-4',
+          clientId: 'usr-client1',
+          title: 'Mobile Client App for Cross-Platform Logistics',
+          description: 'Build responsive cross-platform mobile client with offline-first local storage and real-time order tracking.',
+          category: 'Mobile App Development',
+          budgetType: 'hourly',
+          budget: 70.0,
+          skills: JSON.stringify([
+            { skill_name: 'Flutter', proficiency_level: 'Advanced' }
+          ]),
+        },
+      ];
+
+      const insertJob = db.prepare(`
+        INSERT OR IGNORE INTO jobs (id, client_id, title, description, category_name, budget_type, budget_amount, required_skills_json, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'open')
+      `);
+
+      for (const j of sampleJobs) {
+        insertJob.run(j.id, j.clientId, j.title, j.description, j.category, j.budgetType, j.budget, j.skills);
+      }
+
+      const insertApp = db.prepare(`
+        INSERT OR IGNORE INTO job_applications (id, job_id, freelancer_id, cover_note, proposed_rate, status, match_score)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `);
+
+      insertApp.run(
+        'app-sample-1',
+        'job-2',
+        'usr-riya',
+        'I have 5+ years building production React & TypeScript dashboards with high test coverage and verified Credly badges.',
+        75.0,
+        'applied',
+        95.0
+      );
+      console.log('✅ Sample jobs populated.');
+    }
+  } catch (err) {
+    console.error('Error seeding jobs:', err);
+  }
 }

@@ -168,14 +168,14 @@ export default function SkillsEvidenceHub({ onTakeAssessment }) {
       {/* Alert banner */}
       {message && (
         <div
-          className={`mb-6 p-4 rounded-2xl flex items-center justify-between text-xs font-mono ${
+          className={`mb-6 p-4 rounded-xl flex items-center justify-between text-sm ${
             message.type === 'success'
-              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-              : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
+              ? 'bg-green-50 text-green-700 border border-green-200'
+              : 'bg-red-50 text-red-700 border border-red-200'
           }`}
         >
           <span>{message.text}</span>
-          <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-white">
+          <button onClick={() => setMessage(null)} className="text-gray-400 hover:text-gray-600">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -184,14 +184,18 @@ export default function SkillsEvidenceHub({ onTakeAssessment }) {
       {/* Header */}
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <span className="inline-flex items-center gap-1 text-[11px] font-mono uppercase font-bold px-2.5 py-0.5 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/30 mb-2">
-            Specific Area • Competency Catalog & Credentials Vault
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-2">
-            <Layers className="w-6 h-6 text-violet-400" />
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+            <div className="w-2 h-2 rounded-full bg-red-500"></div>
+            <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+            <div className="w-2 h-2 rounded-full bg-green-500"></div>
+            <span className="text-xs text-gray-500 font-medium ml-1">Competency Catalog & Credentials Vault</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-2">
+            <Layers className="w-6 h-6 text-blue-600" />
             Skills & Evidence Vault
           </h1>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-sm text-gray-500 mt-0.5">
             Catalog your technical talents, inspect Credly verified badges, and upload supporting project certificates.
           </p>
         </div>
@@ -199,16 +203,16 @@ export default function SkillsEvidenceHub({ onTakeAssessment }) {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowAddSkillModal(true)}
-            className="px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-mono font-bold transition-all shadow-md flex items-center gap-2 glow-purple"
+            className="px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-all shadow-sm flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             Add New Skill
           </button>
           <button
             onClick={onTakeAssessment}
-            className="px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-mono font-bold transition-all flex items-center gap-2"
+            className="px-4 py-2.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium transition-all flex items-center gap-2"
           >
-            <Award className="w-4 h-4 text-emerald-400" />
+            <Award className="w-4 h-4 text-green-600" />
             Take Assessment
           </button>
         </div>
@@ -217,24 +221,24 @@ export default function SkillsEvidenceHub({ onTakeAssessment }) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left: Skills List */}
         <div className="lg:col-span-6 space-y-6">
-          <div className="bg-slate-900/90 rounded-3xl border border-slate-800 p-6 shadow-xl">
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
                   Cataloged Skills ({skills.length})
                 </h2>
-                <p className="text-xs text-slate-400 mt-0.5">Click any badge to view verifiable Credly metadata.</p>
+                <p className="text-xs text-gray-500 mt-0.5">Click any badge to view verifiable Credly metadata.</p>
               </div>
             </div>
 
             {loading ? (
-              <div className="py-12 text-center text-xs text-slate-500 font-mono">Loading skill matrix...</div>
+              <div className="py-12 text-center text-sm text-gray-400">Loading skill matrix...</div>
             ) : skills.length === 0 ? (
-              <div className="text-center py-10 bg-slate-950/60 rounded-2xl border border-dashed border-slate-800">
-                <p className="text-xs text-slate-400 font-mono">No skills added yet.</p>
+              <div className="text-center py-10 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                <p className="text-sm text-gray-500">No skills added yet.</p>
                 <button
                   onClick={() => setShowAddSkillModal(true)}
-                  className="mt-2 text-xs font-semibold text-violet-400 hover:text-violet-300"
+                  className="mt-2 text-sm font-medium text-blue-600 hover:text-blue-700"
                 >
                   Click here to add your first skill
                 </button>
@@ -244,15 +248,15 @@ export default function SkillsEvidenceHub({ onTakeAssessment }) {
                 {skills.map(skill => (
                   <div
                     key={skill.id}
-                    className="p-4 rounded-2xl border border-slate-800 bg-slate-950/60 hover:border-slate-700 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm"
+                    className="p-4 rounded-xl border border-gray-200 bg-white hover:border-blue-200 hover:shadow-sm transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                   >
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-base font-bold text-white">{skill.skill_name}</span>
-                        <span className="text-[11px] font-mono text-slate-500">({skill.category_name})</span>
+                        <span className="text-sm font-semibold text-gray-900">{skill.skill_name}</span>
+                        <span className="text-xs text-gray-400">({skill.category_name})</span>
                       </div>
-                      <div className="text-xs text-slate-400 font-mono mt-1">
-                        Proficiency: <span className="text-slate-200 font-semibold">{skill.proficiency_level}</span>
+                      <div className="text-xs text-gray-500 mt-1">
+                        Proficiency: <span className="text-gray-700 font-medium">{skill.proficiency_level}</span>
                       </div>
                     </div>
 
@@ -267,7 +271,7 @@ export default function SkillsEvidenceHub({ onTakeAssessment }) {
 
                       <button
                         onClick={() => handleDeleteSkill(skill.id)}
-                        className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
                         title="Remove skill"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -282,25 +286,25 @@ export default function SkillsEvidenceHub({ onTakeAssessment }) {
 
         {/* Right: Evidence Vault & Upload */}
         <div className="lg:col-span-6 space-y-6">
-          <div className="bg-slate-900/90 rounded-3xl border border-slate-800 p-6 shadow-xl space-y-5">
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-5">
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <UploadCloud className="w-5 h-5 text-cyan-400" />
-                Upload Supporting Evidence (F3, S7)
+              <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                <UploadCloud className="w-5 h-5 text-blue-600" />
+                Upload Supporting Evidence
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-sm text-gray-500 mt-0.5">
                 Upload certificates, PDFs, or portfolios. Stored securely in the verified digital credentials repository.
               </p>
             </div>
 
-            <form onSubmit={handleUploadEvidence} className="space-y-4 font-mono text-xs">
+            <form onSubmit={handleUploadEvidence} className="space-y-4 text-sm">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-bold text-slate-300 mb-1">Target Skill</label>
+                  <label className="block font-medium text-gray-700 mb-1">Target Skill</label>
                   <select
                     value={selectedSkillForEvidence || ''}
                     onChange={(e) => setSelectedSkillForEvidence(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-violet-500"
+                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     {skills.map(s => (
                       <option key={s.id} value={s.id}>
@@ -311,19 +315,19 @@ export default function SkillsEvidenceHub({ onTakeAssessment }) {
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-300 mb-1">Evidence Title</label>
+                  <label className="block font-medium text-gray-700 mb-1">Evidence Title</label>
                   <input
                     type="text"
-                    placeholder="e.g. Certified Cloud Architect - Associate Certificate"
+                    placeholder="e.g. Certified Cloud Architect Certificate"
                     value={evidenceTitle}
                     onChange={(e) => setEvidenceTitle(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-violet-500"
+                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>
 
               {/* Upload Box */}
-              <div className="border-2 border-dashed border-slate-700 hover:border-violet-500 rounded-2xl p-6 text-center bg-slate-950/60 transition-all cursor-pointer relative group">
+              <div className="border-2 border-dashed border-gray-200 hover:border-blue-400 rounded-xl p-6 text-center bg-gray-50 transition-all cursor-pointer relative group">
                 <input
                   type="file"
                   id="evidenceInput"
@@ -332,13 +336,13 @@ export default function SkillsEvidenceHub({ onTakeAssessment }) {
                   accept=".pdf,.png,.jpg,.jpeg,.webp,.zip"
                 />
                 <div className="flex flex-col items-center justify-center pointer-events-none">
-                  <div className="w-12 h-12 rounded-2xl bg-violet-500/10 text-violet-400 flex items-center justify-center mb-2 border border-violet-500/20 group-hover:scale-105 transition-transform">
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-2 border border-blue-100 group-hover:scale-105 transition-transform">
                     <UploadCloud className="w-6 h-6" />
                   </div>
-                  <p className="text-sm font-bold text-white">
+                  <p className="text-sm font-medium text-gray-800">
                     {evidenceFile ? `Selected: ${evidenceFile.name}` : 'Click to browse or drag file here'}
                   </p>
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs text-gray-400 mt-1">
                     PDF, PNG, JPG, ZIP (max 10MB)
                   </p>
                 </div>
@@ -348,7 +352,7 @@ export default function SkillsEvidenceHub({ onTakeAssessment }) {
                 <button
                   type="submit"
                   disabled={uploadLoading || !evidenceFile}
-                  className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-bold transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {uploadLoading ? 'Uploading Evidence...' : 'Upload Document'}
                 </button>
@@ -356,33 +360,33 @@ export default function SkillsEvidenceHub({ onTakeAssessment }) {
             </form>
 
             {/* List of currently uploaded evidence */}
-            <div className="pt-4 border-t border-slate-800">
-              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 mb-3">
+            <div className="pt-4 border-t border-gray-100">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">
                 Uploaded Evidence Documents ({allEvidence.length})
               </h4>
 
               {allEvidence.length === 0 ? (
-                <p className="text-xs text-slate-500 font-mono italic">No evidence uploaded yet.</p>
+                <p className="text-sm text-gray-400 italic">No evidence uploaded yet.</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {allEvidence.map(item => (
                     <div
                       key={item.id}
-                      className="p-3.5 rounded-2xl border border-slate-800 bg-slate-950/80 hover:border-slate-700 transition-all flex items-start justify-between gap-2 shadow-xs"
+                      className="p-3.5 rounded-xl border border-gray-200 bg-white hover:border-blue-200 hover:shadow-sm transition-all flex items-start justify-between gap-2"
                     >
                       <div className="flex items-start gap-2.5 overflow-hidden">
-                        <div className="p-2 rounded-xl bg-violet-500/10 text-violet-400 flex-shrink-0 border border-violet-500/20">
+                        <div className="p-2 rounded-lg bg-blue-50 text-blue-600 flex-shrink-0 border border-blue-100">
                           <FileText className="w-4 h-4" />
                         </div>
-                        <div className="overflow-hidden font-mono">
-                          <div className="text-xs font-bold text-white truncate" title={item.title}>
+                        <div className="overflow-hidden">
+                          <div className="text-sm font-medium text-gray-900 truncate" title={item.title}>
                             {item.title}
                           </div>
-                          <div className="text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5">
-                            <span className="font-semibold text-cyan-400">{item.skill_name}</span>
+                          <div className="text-xs text-gray-500 flex items-center gap-1.5 mt-0.5">
+                            <span className="font-medium text-blue-600">{item.skill_name}</span>
                             <span>•</span>
-                            <span className={`px-1.5 py-0.2 rounded font-bold ${
-                              item.status === 'Verified' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'
+                            <span className={`px-1.5 rounded font-medium ${
+                              item.status === 'Verified' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
                             }`}>
                               {item.status}
                             </span>
@@ -395,14 +399,14 @@ export default function SkillsEvidenceHub({ onTakeAssessment }) {
                           href={item.file_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
                           title="View evidence document"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
                         </a>
                         <button
                           onClick={() => handleDeleteEvidence(item.id)}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
                           title="Delete evidence"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -427,34 +431,34 @@ export default function SkillsEvidenceHub({ onTakeAssessment }) {
 
       {/* Modal: Add Skill */}
       {showAddSkillModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-150">
-          <div className="bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-800 text-slate-100">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
-              <h3 className="font-bold text-white text-base font-mono">Catalog New Skill</h3>
-              <button onClick={() => setShowAddSkillModal(false)} className="text-slate-400 hover:text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-200 text-gray-900">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
+              <h3 className="font-semibold text-gray-900 text-base">Catalog New Skill</h3>
+              <button onClick={() => setShowAddSkillModal(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleAddSkill} className="space-y-4 font-mono text-xs">
+            <form onSubmit={handleAddSkill} className="space-y-4 text-sm">
               <div>
-                <label className="block font-bold text-slate-300 mb-1">Skill Name</label>
+                <label className="block font-medium text-gray-700 mb-1">Skill Name</label>
                 <input
                   type="text"
                   placeholder="e.g. Next.js, Docker, Python, Figma"
                   value={newSkillName}
                   onChange={(e) => setNewSkillName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white focus:ring-1 focus:ring-violet-500"
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-300 mb-1">Category</label>
+                <label className="block font-medium text-gray-700 mb-1">Category</label>
                 <select
                   value={newSkillCategory}
                   onChange={(e) => setNewSkillCategory(e.target.value)}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="Web Development">Web Development</option>
                   <option value="Cloud & DevOps">Cloud & DevOps</option>
@@ -466,17 +470,17 @@ export default function SkillsEvidenceHub({ onTakeAssessment }) {
               </div>
 
               <div>
-                <label className="block font-bold text-slate-300 mb-1">Competency Level (SRS F2)</label>
+                <label className="block font-medium text-gray-700 mb-1">Competency Level</label>
                 <div className="grid grid-cols-2 gap-2">
                   {['Beginner', 'Intermediate', 'Advanced', 'Expert'].map(lvl => (
                     <button
                       type="button"
                       key={lvl}
                       onClick={() => setNewSkillLevel(lvl)}
-                      className={`py-2 px-3 rounded-xl border font-bold text-center transition-all ${
+                      className={`py-2 px-3 rounded-lg border font-medium text-center transition-all text-sm ${
                         newSkillLevel === lvl
-                          ? 'border-violet-500 bg-violet-500/20 text-violet-300 shadow-xs'
-                          : 'border-slate-800 bg-slate-950 text-slate-400 hover:bg-slate-800'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
                       }`}
                     >
                       {lvl}
@@ -489,13 +493,13 @@ export default function SkillsEvidenceHub({ onTakeAssessment }) {
                 <button
                   type="button"
                   onClick={() => setShowAddSkillModal(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-700 text-slate-400 hover:text-white"
+                  className="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 text-sm"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-bold shadow-md"
+                  className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm text-sm"
                 >
                   Save Skill
                 </button>

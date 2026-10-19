@@ -46,7 +46,7 @@ export default function SkillAssessment({ onFinishAssessment }) {
       });
   }, []);
 
-  // Timer countdown and auto-submission (SRS P4: auto-submit and score within 5s of timer expiry)
+  // Timer countdown and auto-submission (SRS P4)
   useEffect(() => {
     if (testActive && timeLeft > 0) {
       timerRef.current = setInterval(() => {
@@ -133,7 +133,7 @@ export default function SkillAssessment({ onFinishAssessment }) {
   };
 
   const handleAutoSubmitOnExpiry = () => {
-    console.log('⏰ Timer expired! Auto-submitting test within 5 seconds (SRS P4)...');
+    console.log('⏰ Timer expired! Auto-submitting test (SRS P4)...');
     submitTest(true);
   };
 
@@ -148,98 +148,104 @@ export default function SkillAssessment({ onFinishAssessment }) {
       {/* Header */}
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <span className="inline-flex items-center gap-1 text-[11px] font-mono uppercase font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 mb-2">
-            HackerRank & Codility Assessment Arena (SRS F5 & P4)
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-2">
-            <Award className="w-6 h-6 text-emerald-400" />
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+            <div className="w-2 h-2 rounded-full bg-red-500"></div>
+            <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+            <div className="w-2 h-2 rounded-full bg-green-500"></div>
+            <span className="text-xs text-gray-500 font-medium ml-1">Assessment Arena — SRS F5 & P4</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-2">
+            <Award className="w-6 h-6 text-green-600" />
             Technical Competency & Evaluation Arena
           </h1>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-sm text-gray-500 mt-0.5">
             Timed skill assessments with automated scoring and instant Credly credential verification.
           </p>
         </div>
 
         {/* Live Timer during active test */}
         {testActive && (
-          <div className={`flex items-center gap-2.5 px-5 py-2.5 rounded-2xl border font-mono text-sm shadow-xl transition-all ${
-            timeLeft < 30 ? 'bg-rose-500/20 border-rose-500 text-rose-300 animate-pulse glow-purple' : 'bg-slate-900 border-slate-700 text-white'
+          <div className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl border text-sm shadow-sm transition-all ${
+            timeLeft < 30
+              ? 'bg-red-50 border-red-300 text-red-700 animate-pulse'
+              : 'bg-white border-gray-200 text-gray-700'
           }`}>
-            <Clock className="w-4 h-4 text-amber-400" />
-            <span>Time Remaining: <strong className="text-emerald-400 font-bold">{formatTime(timeLeft)}</strong></span>
-            {timeLeft < 30 && <span className="text-xs text-rose-400 font-bold">(Auto-submitting!)</span>}
+            <Clock className="w-4 h-4 text-amber-500" />
+            <span>Time Remaining: <strong className={timeLeft < 30 ? 'text-red-600' : 'text-green-600'}>{formatTime(timeLeft)}</strong></span>
+            {timeLeft < 30 && <span className="text-xs text-red-500 font-semibold">(Auto-submitting!)</span>}
           </div>
         )}
       </div>
 
-      {/* 1. Assessment Selection Grid (HackerRank Style Challenge Cards) */}
+      {/* 1. Assessment Selection Grid */}
       {!testActive && !testResult && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {assessments.map(asmt => (
               <div
                 key={asmt.id}
-                className="bg-slate-900/90 rounded-3xl border border-slate-800 hover:border-slate-700 transition-all p-6 shadow-xl flex flex-col justify-between group hover:glow-emerald"
+                className="bg-white rounded-2xl border border-gray-200 hover:border-blue-200 hover:shadow-md transition-all p-6 shadow-sm flex flex-col justify-between group"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500 font-bold">
+                    <span className="text-xs font-semibold uppercase tracking-widest text-gray-400">
                       {asmt.category_name}
                     </span>
-                    <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30">
+                    <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
                       {asmt.questionCount} Questions
                     </span>
                   </div>
 
-                  <h3 className="font-bold text-white text-lg mb-2 group-hover:text-emerald-300 transition-colors">
+                  <h3 className="font-semibold text-gray-900 text-lg mb-2 group-hover:text-blue-600 transition-colors">
                     {asmt.title}
                   </h3>
-                  <p className="text-xs text-slate-400 leading-relaxed mb-5">{asmt.description}</p>
+                  <p className="text-sm text-gray-500 leading-relaxed mb-5">{asmt.description}</p>
                 </div>
 
-                <div className="pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
-                  <div className="flex items-center gap-3 text-slate-400">
+                <div className="pt-4 border-t border-gray-100 flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-3 text-gray-500">
                     <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-slate-500" />
+                      <Clock className="w-3.5 h-3.5 text-gray-400" />
                       {Math.round(asmt.time_limit_seconds / 60)} Mins
                     </span>
                     <span>•</span>
-                    <span className="text-emerald-400 font-semibold">
+                    <span className="text-green-600 font-medium">
                       Pass: {asmt.pass_percentage}%
                     </span>
                   </div>
 
                   <button
                     onClick={() => startAssessment(asmt.id)}
-                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-white font-bold transition-all shadow-md flex items-center gap-1.5"
+                    className="px-4 py-2 rounded-lg bg-gray-50 hover:bg-blue-600 hover:text-white text-gray-700 font-medium transition-all border border-gray-200 hover:border-blue-600 flex items-center gap-1.5 shadow-sm"
                   >
-                    Enter Arena <ChevronRight className="w-4 h-4" />
+                    Start Test <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Info Card on P4 Compliance */}
-          <div className="bg-slate-900/60 rounded-3xl border border-slate-800 p-5 text-xs text-slate-400 font-mono flex items-start gap-3.5">
-            <Info className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+          {/* Info Card */}
+          <div className="bg-blue-50 rounded-2xl border border-blue-100 p-5 text-sm text-gray-600 flex items-start gap-3.5">
+            <Info className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
             <div>
-              <span className="font-bold text-white block">HackerRank Architecture (SRS Requirement P4):</span>
-              <p className="mt-1 leading-relaxed text-slate-400">
-                Tests feature auto-submission within 5 seconds of timer expiry. Scoring $\ge$ 70% instantly verifies the competency, unlocks the Credly digital badge, and alerts hiring recruiters on the platform.
+              <span className="font-semibold text-gray-900 block">Assessment Architecture (SRS Requirement P4):</span>
+              <p className="mt-1 leading-relaxed text-gray-600">
+                Tests feature auto-submission within 5 seconds of timer expiry. Scoring ≥ 70% instantly verifies the competency, unlocks the Credly digital badge, and alerts hiring recruiters on the platform.
               </p>
             </div>
           </div>
         </div>
       )}
 
-      {/* 2. Active Test Interface (HackerRank / Codility Console) */}
+      {/* 2. Active Test Interface */}
       {testActive && activeAssessment && (
-        <div className="bg-slate-900/90 rounded-3xl border border-slate-800 p-6 sm:p-8 shadow-2xl space-y-6 text-slate-100">
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 shadow-sm space-y-6 text-gray-900">
           {/* Question Navigator Pills */}
-          <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800 font-mono text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-gray-100 text-sm">
             <div className="flex items-center gap-2">
-              <span className="text-slate-400">Questions:</span>
+              <span className="text-gray-500">Questions:</span>
               <div className="flex items-center gap-1.5">
                 {questions.map((q, idx) => {
                   const isAnswered = selectedAnswers[q.id] !== undefined;
@@ -248,12 +254,12 @@ export default function SkillAssessment({ onFinishAssessment }) {
                     <button
                       key={q.id}
                       onClick={() => setCurrentQuestionIndex(idx)}
-                      className={`w-7 h-7 rounded-lg font-bold text-xs flex items-center justify-center transition-all ${
+                      className={`w-7 h-7 rounded-lg font-semibold text-xs flex items-center justify-center transition-all ${
                         isCurrent
-                          ? 'bg-violet-600 text-white shadow-md glow-purple border border-violet-400'
+                          ? 'bg-blue-600 text-white shadow-sm'
                           : isAnswered
-                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                          : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white'
+                          ? 'bg-green-100 text-green-700 border border-green-200'
+                          : 'bg-gray-100 text-gray-500 border border-gray-200 hover:bg-gray-200'
                       }`}
                     >
                       {idx + 1}
@@ -263,8 +269,8 @@ export default function SkillAssessment({ onFinishAssessment }) {
               </div>
             </div>
 
-            <div className="text-slate-400">
-              Answered: <strong className="text-emerald-400">{Object.keys(selectedAnswers).length}</strong> / {questions.length}
+            <div className="text-gray-500 text-sm">
+              Answered: <strong className="text-green-600">{Object.keys(selectedAnswers).length}</strong> / {questions.length}
             </div>
           </div>
 
@@ -272,10 +278,10 @@ export default function SkillAssessment({ onFinishAssessment }) {
           {questions[currentQuestionIndex] && (
             <div className="space-y-5">
               <div className="flex items-start gap-3">
-                <span className="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 font-mono text-cyan-400 text-xs font-bold">
+                <span className="px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-100 text-blue-700 text-xs font-bold">
                   Q{currentQuestionIndex + 1}
                 </span>
-                <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 tracking-tight">
                   {questions[currentQuestionIndex].question}
                 </h3>
               </div>
@@ -288,14 +294,14 @@ export default function SkillAssessment({ onFinishAssessment }) {
                     <label
                       key={optIdx}
                       onClick={() => handleSelectOption(questions[currentQuestionIndex].id, optIdx)}
-                      className={`p-4 rounded-2xl border text-xs font-mono cursor-pointer transition-all flex items-center gap-3.5 ${
+                      className={`p-4 rounded-xl border text-sm cursor-pointer transition-all flex items-center gap-3.5 ${
                         isChecked
-                          ? 'border-violet-500 bg-violet-500/15 text-white glow-purple shadow-sm'
-                          : 'border-slate-800 bg-slate-950/60 text-slate-300 hover:border-slate-700 hover:bg-slate-950'
+                          ? 'border-blue-400 bg-blue-50 text-gray-900 shadow-sm'
+                          : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
                       }`}
                     >
                       <div className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 ${
-                        isChecked ? 'border-violet-400 bg-violet-600 text-white' : 'border-slate-700 bg-slate-900'
+                        isChecked ? 'border-blue-500 bg-blue-600 text-white' : 'border-gray-300 bg-white'
                       }`}>
                         {isChecked && <div className="w-2 h-2 rounded-full bg-white"></div>}
                       </div>
@@ -306,11 +312,11 @@ export default function SkillAssessment({ onFinishAssessment }) {
               </div>
 
               {/* Question Navigation buttons */}
-              <div className="flex items-center justify-between pt-4 border-t border-slate-800 font-mono text-xs">
+              <div className="flex items-center justify-between pt-4 border-t border-gray-100 text-sm">
                 <button
                   onClick={() => setCurrentQuestionIndex(Math.max(0, currentQuestionIndex - 1))}
                   disabled={currentQuestionIndex === 0}
-                  className="px-4 py-2 rounded-xl border border-slate-700 text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="px-4 py-2 rounded-lg border border-gray-200 text-gray-500 hover:text-gray-800 disabled:opacity-30 disabled:cursor-not-allowed bg-white"
                 >
                   Previous
                 </button>
@@ -318,7 +324,7 @@ export default function SkillAssessment({ onFinishAssessment }) {
                 {currentQuestionIndex < questions.length - 1 ? (
                   <button
                     onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}
-                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold"
+                    className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium"
                   >
                     Next Question →
                   </button>
@@ -326,7 +332,7 @@ export default function SkillAssessment({ onFinishAssessment }) {
                   <button
                     onClick={() => submitTest(false)}
                     disabled={submitting}
-                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black shadow-lg glow-emerald"
+                    className="px-6 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition-colors"
                   >
                     {submitting ? 'Scoring...' : 'Submit Assessment'}
                   </button>
@@ -337,96 +343,96 @@ export default function SkillAssessment({ onFinishAssessment }) {
         </div>
       )}
 
-      {/* 3. Test Result Review Screen (HackerRank Score Certificate) */}
+      {/* 3. Test Result Review Screen */}
       {testResult && (
-        <div className="bg-slate-900/90 rounded-3xl border border-slate-800 p-6 sm:p-8 shadow-2xl space-y-6 animate-in zoom-in-95 duration-200 text-slate-100">
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 shadow-sm space-y-6 animate-in zoom-in-95 duration-200 text-gray-900">
           {/* Top Score Banner */}
-          <div className={`p-8 rounded-3xl text-center border relative overflow-hidden ${
+          <div className={`p-8 rounded-2xl text-center border relative overflow-hidden ${
             testResult.passed
-              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-100 glow-emerald'
-              : 'bg-rose-500/10 border-rose-500/30 text-rose-100'
+              ? 'bg-green-50 border-green-200 text-green-900'
+              : 'bg-red-50 border-red-200 text-red-900'
           }`}>
-            <div className="w-20 h-20 rounded-full mx-auto flex items-center justify-center mb-4 bg-slate-950 border border-slate-800 shadow-xl">
+            <div className="w-20 h-20 rounded-full mx-auto flex items-center justify-center mb-4 bg-white border border-gray-200 shadow-md">
               {testResult.passed ? (
-                <ShieldCheck className="w-12 h-12 text-emerald-400" />
+                <ShieldCheck className="w-12 h-12 text-green-500" />
               ) : (
-                <AlertTriangle className="w-12 h-12 text-rose-400" />
+                <AlertTriangle className="w-12 h-12 text-red-500" />
               )}
             </div>
 
-            <h2 className="text-3xl font-black tracking-tight mb-2">
+            <h2 className="text-3xl font-bold tracking-tight mb-2">
               {testResult.passed ? 'Skill Assessment Passed! 🎉' : 'Assessment Completed'}
             </h2>
-            <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+            <p className="text-sm max-w-md mx-auto leading-relaxed opacity-80">
               {testResult.passed
                 ? `You demonstrated verified competency in ${activeAssessment?.skill_name}! Your profile badge is now updated to "Assessed".`
                 : `You scored ${testResult.scorePercentage}%. Passing score is ${testResult.passPercentage}%. You can review rationales below and re-test anytime.`}
             </p>
 
-            <div className="flex items-center justify-center gap-8 mt-6 pt-6 border-t border-slate-800 font-mono text-xs">
+            <div className="flex items-center justify-center gap-8 mt-6 pt-6 border-t border-gray-200/60 text-sm">
               <div>
-                <span className="text-slate-400 block uppercase tracking-wider text-[10px]">Percentile Score</span>
-                <span className="text-3xl font-black text-white">{testResult.scorePercentage}%</span>
+                <span className="text-gray-500 block uppercase tracking-wider text-xs mb-1">Score</span>
+                <span className="text-3xl font-bold text-gray-900">{testResult.scorePercentage}%</span>
               </div>
-              <div className="w-px h-10 bg-slate-800"></div>
+              <div className="w-px h-10 bg-gray-200"></div>
               <div>
-                <span className="text-slate-400 block uppercase tracking-wider text-[10px]">Accuracy</span>
-                <span className="text-3xl font-black text-white">{testResult.correctCount} / {testResult.totalQuestions}</span>
+                <span className="text-gray-500 block uppercase tracking-wider text-xs mb-1">Accuracy</span>
+                <span className="text-3xl font-bold text-gray-900">{testResult.correctCount} / {testResult.totalQuestions}</span>
               </div>
-              <div className="w-px h-10 bg-slate-800"></div>
+              <div className="w-px h-10 bg-gray-200"></div>
               <div>
-                <span className="text-slate-400 block uppercase tracking-wider text-[10px]">Scoring Latency</span>
-                <span className="text-3xl font-black text-emerald-400">{testResult.executionTimeMs}ms</span>
+                <span className="text-gray-500 block uppercase tracking-wider text-xs mb-1">Scoring Time</span>
+                <span className="text-3xl font-bold text-green-600">{testResult.executionTimeMs}ms</span>
               </div>
             </div>
           </div>
 
           {/* Question-by-question Review */}
           <div className="space-y-4">
-            <h3 className="font-bold text-sm text-white font-mono flex items-center gap-2">
-              <Terminal className="w-4 h-4 text-cyan-400" />
+            <h3 className="font-semibold text-sm text-gray-900 flex items-center gap-2">
+              <Terminal className="w-4 h-4 text-blue-500" />
               Comprehensive Technical Question Review
             </h3>
 
-            <div className="space-y-3 font-mono text-xs">
+            <div className="space-y-3 text-sm">
               {testResult.reviewDetails?.map((q, idx) => (
                 <div
                   key={q.id}
-                  className={`p-5 rounded-2xl border space-y-2.5 ${
-                    q.isCorrect ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-rose-500/30 bg-rose-500/5'
+                  className={`p-5 rounded-xl border space-y-2.5 ${
+                    q.isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <span className="font-bold text-white leading-relaxed">
+                    <span className="font-medium text-gray-900 leading-relaxed">
                       {idx + 1}. {q.question}
                     </span>
                     {q.isCorrect ? (
-                      <span className="text-emerald-400 font-bold flex items-center gap-1 flex-shrink-0">
+                      <span className="text-green-600 font-medium flex items-center gap-1 flex-shrink-0">
                         <CheckCircle2 className="w-4 h-4" /> Correct
                       </span>
                     ) : (
-                      <span className="text-rose-400 font-bold flex items-center gap-1 flex-shrink-0">
+                      <span className="text-red-600 font-medium flex items-center gap-1 flex-shrink-0">
                         <XCircle className="w-4 h-4" /> Incorrect
                       </span>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-[11px]">
-                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                      <span className="text-slate-500 block uppercase tracking-wider text-[10px] mb-1">Your Selection:</span>
-                      <span className={q.isCorrect ? 'text-emerald-400 font-medium' : 'text-rose-400 font-medium'}>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-xs">
+                    <div className="p-3 rounded-lg bg-white border border-gray-200">
+                      <span className="text-gray-500 block uppercase tracking-wider text-[10px] mb-1">Your Selection:</span>
+                      <span className={q.isCorrect ? 'text-green-600 font-medium' : 'text-red-600 font-medium'}>
                         {q.selectedOption}
                       </span>
                     </div>
-                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                      <span className="text-slate-500 block uppercase tracking-wider text-[10px] mb-1">Correct Answer:</span>
-                      <span className="text-white font-medium">{q.correctOption}</span>
+                    <div className="p-3 rounded-lg bg-white border border-gray-200">
+                      <span className="text-gray-500 block uppercase tracking-wider text-[10px] mb-1">Correct Answer:</span>
+                      <span className="text-gray-900 font-medium">{q.correctOption}</span>
                     </div>
                   </div>
 
                   {q.explanation && (
-                    <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-[11px] text-slate-300 font-sans leading-relaxed">
-                      <strong className="text-cyan-400 font-mono">Rationale:</strong> {q.explanation}
+                    <div className="p-3 rounded-lg bg-white border border-gray-200 text-xs text-gray-600 leading-relaxed">
+                      <strong className="text-blue-600">Rationale:</strong> {q.explanation}
                     </div>
                   )}
                 </div>
@@ -435,22 +441,22 @@ export default function SkillAssessment({ onFinishAssessment }) {
           </div>
 
           {/* Action buttons */}
-          <div className="pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 font-mono text-xs">
+          <div className="pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3 text-sm">
             <button
               onClick={() => {
                 setTestResult(null);
                 setActiveAssessment(null);
               }}
-              className="px-4 py-2 rounded-xl border border-slate-700 text-slate-400 hover:text-white flex items-center gap-1.5"
+              className="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 flex items-center gap-1.5"
             >
-              <RotateCcw className="w-3.5 h-3.5" /> Assessment Arena List
+              <RotateCcw className="w-3.5 h-3.5" /> Back to Assessments
             </button>
 
             <button
               onClick={onFinishAssessment}
-              className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-bold transition-all shadow-md flex items-center gap-2 glow-purple"
+              className="px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-all shadow-sm flex items-center gap-2"
             >
-              Return to Character Sheet <ArrowRight className="w-4 h-4" />
+              Return to Dashboard <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>

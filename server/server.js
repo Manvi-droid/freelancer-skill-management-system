@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import db, { initDatabase } from './config/database.js';
-import { seedDatabase } from './config/seed.js';
+import { seedDatabase, seedJobsIfEmpty } from './config/seed.js';
 
 import authRoutes from './routes/auth.js';
 import profileRoutes from './routes/profiles.js';
@@ -19,6 +19,7 @@ import assessmentRoutes from './routes/assessments.js';
 import searchRoutes from './routes/search.js';
 import adminRoutes from './routes/admin.js';
 import notificationRoutes from './routes/notifications.js';
+import jobsRoutes from './routes/jobs.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,6 +30,7 @@ const PORT = process.env.PORT || 5000;
 // Initialize Database & Seed sample records
 initDatabase();
 seedDatabase();
+seedJobsIfEmpty();
 
 // Middleware
 app.use(cors());
@@ -53,6 +55,7 @@ app.use('/api/assessments', assessmentRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/jobs', jobsRoutes);
 
 // Health check endpoint (SRS P1 / System Monitoring)
 app.get('/health', (req, res) => {

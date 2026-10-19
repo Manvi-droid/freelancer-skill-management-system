@@ -165,6 +165,36 @@ export function initDatabase() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (admin_id) REFERENCES users (id) ON DELETE CASCADE
     );
+
+    -- Jobs / Tasks posted by Job Providers (Clients)
+    CREATE TABLE IF NOT EXISTS jobs (
+      id TEXT PRIMARY KEY,
+      client_id TEXT NOT NULL,
+      title TEXT NOT NULL,
+      description TEXT NOT NULL,
+      category_name TEXT NOT NULL,
+      budget_type TEXT DEFAULT 'hourly' CHECK(budget_type IN ('hourly', 'fixed')),
+      budget_amount REAL NOT NULL,
+      required_skills_json TEXT NOT NULL,
+      status TEXT DEFAULT 'open' CHECK(status IN ('open', 'in_progress', 'completed', 'closed')),
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (client_id) REFERENCES users (id) ON DELETE CASCADE
+    );
+
+    -- Applications submitted by Freelancers for Jobs/Tasks
+    CREATE TABLE IF NOT EXISTS job_applications (
+      id TEXT PRIMARY KEY,
+      job_id TEXT NOT NULL,
+      freelancer_id TEXT NOT NULL,
+      cover_note TEXT,
+      proposed_rate REAL,
+      status TEXT DEFAULT 'applied' CHECK(status IN ('applied', 'reviewing', 'accepted', 'rejected')),
+      match_score REAL DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (job_id) REFERENCES jobs (id) ON DELETE CASCADE,
+      FOREIGN KEY (freelancer_id) REFERENCES users (id) ON DELETE CASCADE,
+      UNIQUE(job_id, freelancer_id)
+    );
   `);
   console.log('✅ SQLite Database initialized with strict referential integrity.');
 }

@@ -4,11 +4,16 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('fsms_token') || null);
+  const [token, setToken] = useState(sessionStorage.getItem('fsms_token') || null);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // Fetch current user if token exists
+  // Ensure default page on fresh visit is always the Login Page
+  useEffect(() => {
+    localStorage.removeItem('fsms_token');
+  }, []);
+
+  // Fetch current user if token exists in session
   useEffect(() => {
     if (token) {
       fetch('/api/auth/me', {
@@ -24,14 +29,13 @@ export function AuthProvider({ children }) {
           setLoading(false);
         })
         .catch(() => {
-          localStorage.removeItem('fsms_token');
+          sessionStorage.removeItem('fsms_token');
           setToken(null);
           setUser(null);
           setLoading(false);
         });
     } else {
-      // Default to demo freelancer Riya Kapoor on first visit for zero-friction evaluation
-      switchDemoRole('freelancer').finally(() => setLoading(false));
+      setLoading(false);
     }
   }, [token]);
 
@@ -43,7 +47,7 @@ export function AuthProvider({ children }) {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Login failed');
-    localStorage.setItem('fsms_token', data.token);
+    sessionStorage.setItem('fsms_token', data.token);
     setToken(data.token);
     setUser(data.user);
     return data;
@@ -57,7 +61,7 @@ export function AuthProvider({ children }) {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Registration failed');
-    localStorage.setItem('fsms_token', data.token);
+    sessionStorage.setItem('fsms_token', data.token);
     setToken(data.token);
     setUser(data.user);
     return data;
@@ -72,7 +76,7 @@ export function AuthProvider({ children }) {
       });
       if (res.ok) {
         const data = await res.json();
-        localStorage.setItem('fsms_token', data.token);
+        sessionStorage.setItem('fsms_token', data.token);
         setToken(data.token);
         setUser(data.user);
         return data;
@@ -83,6 +87,7 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
+    sessionStorage.removeItem('fsms_token');
     localStorage.removeItem('fsms_token');
     setToken(null);
     setUser(null);
